@@ -1,46 +1,22 @@
 {
   "version": 2,
-  "name": "motorsur",
-  "builds": [
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
-    }
-  ],
+  "outputDirectory": "public",
   "routes": [
     {
-      "src": "/seguimiento",
-      "dest": "/public/seguimiento.html"
-    },
-    {
       "src": "/sw.js",
-      "dest": "/public/sw.js",
+      "dest": "/sw.js",
       "headers": {
         "Service-Worker-Allowed": "/",
         "Cache-Control": "no-cache"
       }
     },
     {
-      "src": "/(.*)",
-      "dest": "/public/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
+      "src": "/seguimiento",
+      "dest": "/seguimiento.html"
     },
     {
-      "source": "/sw.js",
-      "headers": [
-        { "key": "Service-Worker-Allowed", "value": "/" },
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
-      ]
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
