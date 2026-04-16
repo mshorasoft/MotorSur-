@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MotorSur — Respuesta de seguimiento</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://pdpcztklnalhkbcjyeoh.supabase.co'
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkcGN6dGtsbmFsaGtiY2p5ZW9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MDA3NDQsImV4cCI6MjA5MTI3Njc0NH0.ZPrBIuyVTbOzUqMWRpA9kx6zIPYwd7LH1yPQXObkPVo'
+  const { createClient } = supabase
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY)
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:#F5F3EF;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.card{background:#fff;border-radius:20px;padding:2.5rem;max-width:480px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(10,22,40,.1)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#0A1628;margin-bottom:2rem}
+.logo span{color:#FF5C1A}
+.icon{font-size:60px;margin-bottom:1.25rem}
+h1{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:#0A1628;margin-bottom:.75rem}
+p{font-size:14px;color:#5C5A56;line-height:1.7;margin-bottom:1.5rem}
+.car-info{background:#F5F3EF;border-radius:12px;padding:1rem;margin-bottom:1.5rem;font-size:13px;text-align:left}
+.car-info strong{display:block;font-size:15px;color:#0A1628;margin-bottom:4px}
+.car-info span{color:#9A9690}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.btn-si{padding:16px;background:#1A7A45;color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-si:hover{background:#175C36;transform:translateY(-2px)}
+.btn-no{padding:16px;background:transparent;color:#0A1628;border:2px solid #DDD9D1;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-no:hover{border-color:#0A1628;transform:translateY(-2px)}
+.aviso{background:#FFF8ED;border:1px solid #FAEEDA;border-radius:10px;padding:12px;font-size:12px;color:#854F0B;line-height:1.5;margin-bottom:1.5rem}
+.resultado{display:none;padding:1.5rem;border-radius:14px;margin-top:1rem}
+.resultado.si{background:#E0F2E9;border:1px solid #A3D9B7}
+.resultado.no{background:#EEF4FB;border:1px solid #B5D4F4}
+.resultado h2{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:.5rem}
+.resultado.si h2{color:#175C36}
+.resultado.no h2{color:#0C447C}
+.resultado p{font-size:13px;margin-bottom:1rem}
+.btn-ir{display:inline-block;background:#FF5C1A;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;transition:background .2s}
+.btn-ir:hover{background:#E04610}
+.loading{color:#9A9690;font-size:14px;padding:2rem}
+</style>
+</head>
+<body>
+
+<div class="card" id="main-card">
+  <div class="logo">Motor<span>Sur</span></div>
+
+  <!-- Estado: cargando -->
+  <div id="estado-cargando" class="loading">
+    <div style="font-size:32px;margin-bottom:.75rem">⏳</div>
+    Verificando tu solicitud...
+  </div>
+
+  <!-- Estado: pregunta -->
+  <div id="estado-pregunta" style="display:none">
+    <div class="icon">🚗</div>
+    <h1>¿Compraste este vehículo?</h1>
+    <p>Tu respuesta es necesaria para proteger la operación y mantener tu cuenta activa en MotorSur.</p>
+
+    <div class="car-info" id="car-info-box">
+      <strong id="auto-nombre">Cargando...</strong>
+      <span id="vendedor-info">Vendedor: —</span><br>
+      <span id="fecha-contacto" style="color:#FF5C1A;font-size:11px;margin-top:4px;display:block">Contacto registrado: —</span>
+    </div>
+
+    <div class="aviso">
+      ⚠️ <strong>Tu respuesta es obligatoria.</strong> Si no respondés en 48hs desde que recibiste este email, tu cuenta quedará suspendida según los T&C que aceptaste al registrarte.
+    </div>
+
+    <div class="btns">
+      <button class="btn-si" onclick="responder('si')">✓ Sí, compré el auto</button>
+      <button class="btn-no" onclick="responder('no')">No, no lo compré</button>
+    </div>
+
+    <p style="font-size:11px;color:#9A9690">Al responder, tu cuenta se mantiene activa y el proceso queda registrado.</p>
+  </div>
+
+  <!-- Estado: resultado SÍ -->
+  <div id="estado-si" class="resultado si" style="display:none">
+    <div style="font-size:48px;margin-bottom:.75rem">🎉</div>
+    <h2>¡Gracias por confirmar!</h2>
+    <p>Registramos que compraste el vehículo. El vendedor recibirá una notificación para declarar la venta y abonar la comisión correspondiente según T&C.<br><br>Tu operación queda protegida por MotorSur.</p>
+    <a href="/" class="btn-ir">Volver a MotorSur →</a>
+  </div>
+
+  <!-- Estado: resultado NO -->
+  <div id="estado-no" class="resultado no" style="display:none">
+    <div style="font-size:48px;margin-bottom:.75rem">👍</div>
+    <h2>Gracias por responder</h2>
+    <p>Registramos que no concretaste la compra de este vehículo. Tu cuenta sigue activa normalmente.<br><br>Si en el futuro te interesa otro auto, podés seguir explorando en MotorSur.</p>
+    <a href="/" class="btn-ir">Ver más vehículos →</a>
+  </div>
+
+  <!-- Estado: error -->
+  <div id="estado-error" style="display:none">
+    <div class="icon">❌</div>
+    <h1>Link inválido</h1>
+    <p>Este link ya fue usado, expiró o no es válido. Si tenés problemas, contactanos a <a href="mailto:info@motorsur.com.ar" style="color:#FF5C1A">info@motorsur.com.ar</a></p>
+    <a href="/" class="btn-ir">Ir a MotorSur →</a>
+  </div>
+
+</div>
+
+<script>
+// Leer parámetros de la URL
+const params = new URLSearchParams(window.location.search);
+const contactoId = params.get('id');
+const token = params.get('token');
+const respAuto = params.get('resp'); // si viene pre-respondida desde el email
+
+let contactoData = null;
+
+async function iniciar() {
+  if (!contactoId || !token) {
+    mostrar('error');
+    return;
+  }
+
+  try {
+    // Buscar el contacto
+    const { data, error } = await db
+      .from('contactos')
+      .select('*')
+      .eq('id', contactoId)
+      .eq('token_seguimiento', token)
+      .single();
+
+    if (error || !data) {
+      mostrar('error');
+      return;
+    }
+
+    contactoData = data;
+
+    // Si ya respondió, mostrar resultado directo
+    if (data.respuesta_comprador) {
+      mostrar(data.respuesta_comprador === 'si' ? 'si' : 'no');
+      return;
+    }
+
+    // Completar info del auto
+    document.getElementById('auto-nombre').textContent = data.auto_nombre || 'Vehículo';
+    document.getElementById('vendedor-info').textContent = 'Vendedor: ' + (data.vendedor_nombre || '—');
+    document.getElementById('fecha-contacto').textContent = 'Contacto registrado: ' +
+      new Date(data.fecha_contacto).toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' });
+
+    // Si viene la respuesta en la URL, procesarla automáticamente
+    if (respAuto === 'si' || respAuto === 'no') {
+      await responder(respAuto);
+      return;
+    }
+
+    mostrar('pregunta');
+
+  } catch (err) {
+    console.error(err);
+    mostrar('error');
+  }
+}
+
+async function responder(resp) {
+  if (!contactoId || !token) return;
+
+  // Mostrar loading brevemente
+  const btns = document.querySelectorAll('.btns button');
+  btns.forEach(b => { b.disabled = true; b.style.opacity = '.5'; });
+
+  try {
+    // Llamar a la función SQL que procesa la respuesta
+    const { data, error } = await db.rpc('procesar_respuesta_seguimiento', {
+      p_contacto_id: contactoId,
+      p_token: token,
+      p_respuesta: resp
+    });
+
+    if (error) throw error;
+
+    mostrar(resp);
+
+  } catch (err) {
+    console.error(err);
+
+    // Fallback: actualizar directamente si la función RPC falla
+    try {
+      await db.from('contactos').update({
+        respuesta_comprador: resp,
+        fecha_respuesta: new Date().toISOString(),
+        venta_confirmada: resp === 'si',
+        estado: resp === 'si' ? 'venta_confirmada_comprador' : 'sin_venta'
+      }).eq('id', contactoId);
+
+      // Si dijo SÍ, generar notificación para admin
+      if (resp === 'si' && contactoData) {
+        await db.from('notificaciones_admin').insert({
+          tipo: 'venta_confirmada',
+          mensaje: '✅ Comprador confirmó venta: ' + (contactoData.auto_nombre || 'Vehículo'),
+          detalle: 'Vendedor: ' + (contactoData.vendedor_nombre || '—') + ' | Comprador confirmó la compra.',
+          leido: false,
+          created_at: new Date().toISOString()
+        });
+
+        // Alerta en alertas_evasion si no existe
+        await db.from('alertas_evasion').insert({
+          conversacion_id: contactoId,
+          vendedor_nombre: contactoData.vendedor_nombre,
+          comprador_nombre: contactoData.comprador_nombre,
+          auto_nombre: contactoData.auto_nombre,
+          riesgo: 'ALTO',
+          score: 92,
+          titulo: 'Venta confirmada — sin declarar',
+          descripcion: 'El comprador ' + (contactoData.comprador_nombre||'—') + ' confirmó que compró el auto. El vendedor debe declarar la venta.',
+          recomendacion: 'Notificar al vendedor. Plazo 48hs para declarar. Si no cumple, suspender cuenta.',
+          gestionada: false,
+          created_at: new Date().toISOString()
+        });
+      }
+
+      mostrar(resp);
+    } catch(e2) {
+      console.error(e2);
+      mostrar(resp); // Mostrar resultado igual
+    }
+  }
+}
+
+function mostrar(estado) {
+  document.getElementById('estado-cargando').style.display = 'none';
+  document.getElementById('estado-pregunta').style.display = 'none';
+  document.getElementById('estado-si').style.display = 'none';
+  document.getElementById('estado-no').style.display = 'none';
+  document.getElementById('estado-error').style.display = 'none';
+
+  const mapa = { cargando:'estado-cargando', pregunta:'estado-pregunta', si:'estado-si', no:'estado-no', error:'estado-error' };
+  const el = document.getElementById(mapa[estado] || 'estado-error');
+  if (el) el.style.display = 'block';
+}
+
+// Iniciar al cargar
+iniciar();
+</script>
+
+</body>
+</html>
