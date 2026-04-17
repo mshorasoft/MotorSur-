@@ -1330,32 +1330,44 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       </div>
       <div class="foot-col">
         <h4>Plataforma</h4>
-        <a onclick="document.getElementById('autos').scrollIntoView({behavior:'smooth'})">Vehículos</a>
-        <a onclick="abrirAuth('registro')">Publicar</a>
-        <a onclick="document.getElementById('planes').scrollIntoView({behavior:'smooth'})">Planes</a>
+        <a onclick="goTo('landing');setTimeout(()=>document.getElementById('autos').scrollIntoView({behavior:'smooth'}),100)">Vehículos</a>
+        <a onclick="userSession ? abrirNuevaPublicacion() : abrirAuth('registro')">Publicar auto</a>
+        <a onclick="goTo('landing');setTimeout(()=>document.getElementById('planes').scrollIntoView({behavior:'smooth'}),100)">Planes</a>
         <a onclick="abrirAuth('login')">Mi cuenta</a>
       </div>
       <div class="foot-col">
         <h4>Legal</h4>
-        <a>Términos y condiciones</a>
-        <a>Política de privacidad</a>
-        <a>Contrato de adhesión</a>
-        <a>T&C v1.1</a>
+        <a onclick="abrirModalLegal('tyc')">Términos y condiciones</a>
+        <a onclick="abrirModalLegal('privacidad')">Política de privacidad</a>
+        <a onclick="abrirModalLegal('contrato')">Contrato de adhesión</a>
+        <a onclick="abrirModalLegal('comision')">Comisión 1,5%</a>
       </div>
       <div class="foot-col">
         <h4>Contacto</h4>
-        <a>info@motorsur.com.ar</a>
-        <a>WhatsApp +54 260 555-0000</a>
+        <a href="mailto:info@motorsur.com.ar">info@motorsur.com.ar</a>
+        <a href="https://wa.me/5492604655192?text=Hola%20MotorSur!%20Quiero%20consultar%20sobre%20la%20plataforma." target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:15px">💬</span> WhatsApp Horacio
+        </a>
         <a>San Rafael, Mendoza</a>
+        <!-- Redes sociales -->
         <div style="display:flex;gap:10px;margin-top:.75rem">
-          <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">📘</div>
-          <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">📸</div>
-          <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">💬</div>
+          <a href="https://wa.me/5492604655192?text=Hola%20MotorSur!" target="_blank" rel="noopener"
+             style="width:36px;height:36px;border-radius:8px;background:#25D366;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;text-decoration:none;transition:opacity .2s" title="WhatsApp">
+            💬
+          </a>
+          <a href="https://instagram.com/motorsur.sanrafael" target="_blank" rel="noopener"
+             style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;text-decoration:none;transition:opacity .2s" title="Instagram">
+            📸
+          </a>
+          <a href="https://facebook.com/motorsur" target="_blank" rel="noopener"
+             style="width:36px;height:36px;border-radius:8px;background:#1877F2;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;text-decoration:none;transition:opacity .2s" title="Facebook">
+            📘
+          </a>
         </div>
       </div>
     </div>
     <div class="foot-bot">
-      <span>© 2025 MotorSur · San Rafael, Mendoza</span>
+      <span>© 2025 MotorSur · San Rafael, Mendoza · Horacio Basly</span>
       <span style="display:flex;align-items:center;gap:8px">
         <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--verde)"></span>
         Plataforma activa · Comisión 1,5% · T&C v1.1
@@ -2206,6 +2218,33 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       <button class="btn-action outline" onclick="cerrarMov('suspender')">Cancelar</button>
       <button class="fsubmit" style="margin:0;background:var(--rojo)" onclick="confirmarSuspension()">Suspender cuenta</button>
     </div>
+  </div>
+</div>
+
+<!-- ══════════════ BOTÓN FLOTANTE WHATSAPP ══════════════ -->
+<a href="https://wa.me/5492604655192?text=Hola%20MotorSur!%20Quiero%20consultar%20sobre%20un%20vehículo." target="_blank" rel="noopener"
+   id="btn-wsp-flotante"
+   style="position:fixed;bottom:2rem;right:2rem;z-index:500;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.45);text-decoration:none;font-size:28px;transition:all .25s;animation:wsp-pulse 2.5s ease infinite"
+   title="Contactar por WhatsApp">
+  💬
+</a>
+<style>
+@keyframes wsp-pulse{
+  0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.45),0 0 0 0 rgba(37,211,102,.3)}
+  50%{box-shadow:0 4px 20px rgba(37,211,102,.45),0 0 0 10px rgba(37,211,102,0)}
+}
+#btn-wsp-flotante:hover{transform:scale(1.12);box-shadow:0 6px 28px rgba(37,211,102,.6)}
+</style>
+
+<!-- ══════════════ MODAL LEGAL ══════════════ -->
+<div class="mov" id="mov-legal">
+  <div class="mbox" style="max-width:600px">
+    <button class="mclose" onclick="cerrarMov('legal')">×</button>
+    <div class="m-title" id="legal-titulo">Términos y condiciones</div>
+    <div style="font-size:12px;color:var(--gris-mid);margin-bottom:1.25rem">MotorSur · San Rafael, Mendoza · v1.1 · 2025</div>
+    <div id="legal-contenido" style="font-size:13px;color:var(--texto-suave);line-height:1.8;max-height:60vh;overflow-y:auto;padding-right:8px">
+    </div>
+    <button class="fsubmit" style="margin-top:1.25rem" onclick="cerrarMov('legal')">Entendido</button>
   </div>
 </div>
 
@@ -4553,6 +4592,87 @@ async function suscribirNewsletter(){
   } catch(e) { /* ok — supabase table may not exist yet */ }
   document.getElementById('nl-email').value = '';
   mostrarToast('✓ Te suscribiste a las alertas de nuevos autos');
+}
+
+// ════════════════════════════════════════
+// MODAL LEGAL — T&C, Privacidad, Contrato
+// ════════════════════════════════════════
+const LEGAL = {
+  tyc:{titulo:'Términos y Condiciones',contenido:`
+    <strong style="color:var(--azul);display:block;margin-bottom:.5rem">MotorSur — T&C v1.1 · 2025</strong>
+    <p style="margin-bottom:1rem">Estos Términos regulan el uso de MotorSur, operada por Horacio Basly, San Rafael, Mendoza, Argentina.</p>
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">1. Objeto</strong>
+    Plataforma de intermediación para compraventa de vehículos usados. No es parte de la operación entre usuarios.
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">2. Comisión</strong>
+    Los vendedores abonan el <strong>1,5%</strong> sobre el precio final de venta cuando el comprador fue contactado a través de MotorSur. La obligación se activa con el clic en "Me interesa".
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">3. Membresías</strong>
+    Comprador: $5.000/mes · Vendedor: $10.000/mes. Se renuevan automáticamente cada 30 días.
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">4. Declaración jurada</strong>
+    El precio publicado tiene carácter de declaración jurada y es la base de cálculo de la comisión.
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">5. Seguimiento</strong>
+    MotorSur puede contactar compradores para verificar operaciones. No responder en 48hs puede resultar en suspensión temporal.
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">6. Protección del contacto</strong>
+    El registro de interés genera protección legal de 90 días. La comisión es exigible aunque la venta se concrete por otro canal.
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">7. Jurisdicción</strong>
+    Tribunales ordinarios de San Rafael, Mendoza, Argentina.`
+  },
+  privacidad:{titulo:'Política de Privacidad',contenido:`
+    <strong style="color:var(--azul);display:block;margin-bottom:.5rem">Política de Privacidad — MotorSur</strong>
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">Datos que recopilamos</strong>
+    Nombre, email, DNI/CUIT, teléfono (solo verificación interna) y datos de vehículos publicados.
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">Lo que NO hacemos</strong>
+    <ul style="margin-left:1rem;margin-top:.5rem;display:flex;flex-direction:column;gap:4px">
+      <li>No compartimos teléfono ni email entre compradores y vendedores</li>
+      <li>No vendemos datos a terceros</li>
+      <li>No mostramos publicidad de terceros basada en tus datos</li>
+    </ul>
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">Almacenamiento</strong>
+    Servidores Supabase — región South America (São Paulo) con cifrado en tránsito y en reposo.
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">Tus derechos</strong>
+    Podés solicitar eliminación de cuenta y datos escribiendo a info@motorsur.com.ar.`
+  },
+  contrato:{titulo:'Contrato de Adhesión',contenido:`
+    <strong style="color:var(--azul);display:block;margin-bottom:.5rem">Contrato de Adhesión — MotorSur v1.1</strong>
+    <p style="margin-bottom:1rem">Al registrarse en MotorSur, el usuario acepta este contrato en su totalidad.</p>
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">El VENDEDOR se compromete a:</strong>
+    <ul style="margin-left:1rem;display:flex;flex-direction:column;gap:6px;margin-top:.5rem">
+      <li>Declarar precios reales bajo carácter de declaración jurada</li>
+      <li>Abonar la comisión del 1,5% sobre el precio final de venta cuando el comprador fue contactado por MotorSur</li>
+      <li>Declarar la venta dentro de los 5 días hábiles de concretada</li>
+      <li>No evadir la comisión contactando compradores por fuera de la plataforma</li>
+      <li>Responder consultas de seguimiento dentro de las 48 horas</li>
+    </ul>
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">El COMPRADOR se compromete a:</strong>
+    <ul style="margin-left:1rem;display:flex;flex-direction:column;gap:6px;margin-top:.5rem">
+      <li>Responder encuestas de seguimiento dentro de las 48 horas</li>
+      <li>Informar verazmente si concretó la compra del vehículo</li>
+    </ul>
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">Consecuencias del incumplimiento</strong>
+    Suspensión de cuenta, cobro judicial de comisión adeudada e inhabilitación permanente.`
+  },
+  comision:{titulo:'Comisión del 1,5% — ¿Cómo funciona?',contenido:`
+    <div style="background:var(--verde-light);border-radius:10px;padding:1rem;margin-bottom:1rem;text-align:center">
+      <div style="font-size:28px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;color:var(--verde)">1,5% sobre el precio final</div>
+      <div style="font-size:12px;color:var(--verde)">Solo cuando MotorSur generó el contacto</div>
+    </div>
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">¿Cuándo se activa?</strong>
+    Cuando un comprador registrado hace clic en "Me interesa". Ese clic registra el contacto con fecha y hora exacta.
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">Ejemplos</strong>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:.5rem">
+      <div style="background:var(--blanco);border-radius:8px;padding:10px;border:1px solid var(--crema)"><div style="font-weight:600">Auto a $15.000.000</div><div style="color:var(--gris-mid);font-size:12px">Comisión: $225.000 ARS</div></div>
+      <div style="background:var(--blanco);border-radius:8px;padding:10px;border:1px solid var(--crema)"><div style="font-weight:600">Camioneta a $40.000.000</div><div style="color:var(--gris-mid);font-size:12px">Comisión: $600.000 ARS</div></div>
+    </div>
+    <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">¿Cómo se paga?</strong>
+    Panel vendedor → Comisiones → MercadoPago o transferencia. Plazo: 5 días hábiles tras la venta.`
+  }
+};
+
+function abrirModalLegal(tipo){
+  const data=LEGAL[tipo];
+  if(!data) return;
+  document.getElementById('legal-titulo').textContent=data.titulo;
+  document.getElementById('legal-contenido').innerHTML=data.contenido;
+  document.getElementById('mov-legal').classList.add('open');
 }
 </script>
 </body>
