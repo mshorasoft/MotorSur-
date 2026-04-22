@@ -2680,8 +2680,17 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
 // NAVEGACIÓN
 // ════════════════════════════════════════
 function goTo(page){
+  // Protección de acceso por rol
+  if(page === 'panel-admin' && userSession?.tipo !== 'admin') {
+    page = userSession?.tipo === 'vendedor' ? 'panel-vendedor' : userSession ? 'panel-comprador' : 'landing';
+  }
+  if(page === 'panel-vendedor' && userSession?.tipo === 'comprador') page = 'panel-comprador';
+  if(page === 'panel-comprador' && userSession?.tipo === 'vendedor') page = 'panel-vendedor';
+
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
+  const el = document.getElementById('page-'+page);
+  if(!el) return;
+  el.classList.add('active');
   window.scrollTo(0,0);
   const isPanel = page.startsWith('panel');
   document.getElementById('nav-public').style.display = isPanel ? 'none' : 'flex';
@@ -2757,7 +2766,7 @@ async function cargarPerfilUsuario(user){
 
 function activarSesion(){
   if(!userSession) return;
-  mostrarNavUsuario(userSession.nombre, userSession.initials);
+  mostrarNavUsuario(userSession.nombre, userSession.initials, userSession.tipo);
   goTo(userSession.page);
   if(userSession.tipo === 'comprador') renderizarListaChatsComprador();
   if(userSession.tipo === 'admin') suscribirAlertasRealtime();
@@ -2810,11 +2819,15 @@ async function verificarCuentaSuspendida(){
   } catch(e){ /* ok si no hay perfil aún */ }
 }
 
-function mostrarNavUsuario(nombre, initials){
+function mostrarNavUsuario(nombre, initials, tipo){
   document.getElementById('nav-btns-public').style.display = 'none';
   document.getElementById('nav-user').style.display = 'flex';
   document.getElementById('nav-username').textContent = nombre;
   document.getElementById('nav-av').textContent = initials;
+  // Mostrar solo el ítem de menú correspondiente al tipo
+  document.getElementById('umenu-vendedor').style.display = tipo === 'vendedor' ? 'block' : 'none';
+  document.getElementById('umenu-comprador').style.display = tipo === 'comprador' ? 'block' : 'none';
+  document.getElementById('umenu-admin').style.display = tipo === 'admin' ? 'block' : 'none';
 }
 
 function mostrarNavPublico(){
