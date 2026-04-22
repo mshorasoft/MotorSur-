@@ -2821,10 +2821,10 @@ function abrirAuth(tab){
 }
 
 function switchAuth(tab){
-  const tabs = ['login','registro','recovery','verify'];
-  tabs.forEach(t => {
-    const el = document.getElementById('f-'+t);
-    if(el) el.style.display = t===tab ? 'block' : 'none';
+  const tabMap = {login:'f-login', registro:'f-reg', recovery:'f-recovery', verify:'f-verify'};
+  Object.entries(tabMap).forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = key===tab ? 'block' : 'none';
   });
   // Tabs del header
   document.getElementById('mt-login')?.classList.toggle('active', tab==='login');
