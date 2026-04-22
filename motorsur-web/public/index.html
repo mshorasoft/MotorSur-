@@ -929,9 +929,9 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
     <span style="font-size:13px;color:rgba(255,255,255,.6)" id="nav-username"></span>
     <div class="nav-avatar" id="nav-av" onclick="toggleUserMenu()">CM</div>
     <div id="user-menu" style="display:none;position:absolute;top:68px;right:2.5rem;background:#fff;border:1px solid var(--crema);border-radius:14px;padding:.5rem;min-width:190px;z-index:400;box-shadow:0 8px 30px rgba(0,0,0,.12)">
-      <div class="umenu-item" onclick="goTo('panel-vendedor')">📊 Panel vendedor</div>
-      <div class="umenu-item" onclick="goTo('panel-comprador')">🔍 Panel comprador</div>
-      <div class="umenu-item" onclick="goTo('panel-admin')">⚙️ Administrador</div>
+      <div id="umenu-vendedor" class="umenu-item" style="display:none" onclick="goTo('panel-vendedor')">📊 Mi panel</div>
+      <div id="umenu-comprador" class="umenu-item" style="display:none" onclick="goTo('panel-comprador')">🔍 Mi panel</div>
+      <div id="umenu-admin" class="umenu-item" style="display:none" onclick="goTo('panel-admin')">⚙️ Administrador</div>
       <div style="border-top:1px solid var(--crema);margin:.25rem 0"></div>
       <div class="umenu-item" style="color:var(--rojo)" onclick="cerrarSesion()">← Cerrar sesión</div>
     </div>
@@ -1414,10 +1414,10 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       </div>
       <div class="sb-foot">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="sb-avatar" style="background:var(--azul)">CM</div>
+          <div class="sb-avatar" id="pv-sb-avatar" style="background:var(--azul)">—</div>
           <div>
-            <div style="font-size:12px;font-weight:700;color:var(--azul)">Carlos M.</div>
-            <div style="font-size:10px;color:var(--verde)">● Membresía activa</div>
+            <div style="font-size:12px;font-weight:700;color:var(--azul)" id="pv-sb-nombre">—</div>
+            <div style="font-size:10px;color:var(--verde)" id="pv-sb-membresia">● Membresía activa</div>
           </div>
         </div>
         <button class="btn-action outline sm" style="width:100%;margin-top:.75rem" onclick="goTo('landing')">← Volver al sitio</button>
@@ -1628,10 +1628,10 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       </div>
       <div class="sb-foot">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="sb-avatar" style="background:var(--naranja)">AG</div>
+          <div class="sb-avatar" id="pc-sb-avatar" style="background:var(--naranja)">AG</div>
           <div>
-            <div style="font-size:12px;font-weight:700;color:var(--azul)">Ana G.</div>
-            <div style="font-size:10px;color:var(--verde)">● Membresía activa</div>
+            <div style="font-size:12px;font-weight:700;color:var(--azul)" id="pc-sb-nombre">—</div>
+            <div style="font-size:10px;color:var(--verde)" id="pc-sb-membresia">● Membresía activa</div>
           </div>
         </div>
         <button class="btn-action outline sm" style="width:100%;margin-top:.75rem" onclick="goTo('landing')">← Volver al sitio</button>
@@ -2769,6 +2769,27 @@ function activarSesion(){
   if(!userSession) return;
   mostrarNavUsuario(userSession.nombre, userSession.initials, userSession.tipo);
   goTo(userSession.page);
+
+  // Actualizar sidebar con datos reales del usuario
+  const membresia = userSession.membresia_activa ? '● Membresía activa' : '○ Sin membresía';
+  const colorMembresia = userSession.membresia_activa ? 'var(--verde)' : 'var(--gris-mid)';
+  if(userSession.tipo === 'comprador'){
+    const av = document.getElementById('pc-sb-avatar');
+    const nm = document.getElementById('pc-sb-nombre');
+    const mb = document.getElementById('pc-sb-membresia');
+    if(av) av.textContent = userSession.initials;
+    if(nm) nm.textContent = userSession.nombre;
+    if(mb){ mb.textContent = membresia; mb.style.color = colorMembresia; }
+  }
+  if(userSession.tipo === 'vendedor'){
+    const av = document.getElementById('pv-sb-avatar');
+    const nm = document.getElementById('pv-sb-nombre');
+    const mb = document.getElementById('pv-sb-membresia');
+    if(av) av.textContent = userSession.initials;
+    if(nm) nm.textContent = userSession.nombre;
+    if(mb){ mb.textContent = membresia; mb.style.color = colorMembresia; }
+  }
+
   if(userSession.tipo === 'comprador') renderizarListaChatsComprador();
   if(userSession.tipo === 'admin') suscribirAlertasRealtime();
 
