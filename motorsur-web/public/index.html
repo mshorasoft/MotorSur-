@@ -2278,7 +2278,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
 
       <div class="fg">
         <label class="flabel">Email</label>
-        <input class="finput" type="email" id="login-email" placeholder="tu@email.com" autocomplete="email">
+        <input class="finput" type="email" id="login-email" placeholder="tu@email.com" autocomplete="email" oninput="checkDemoAccess(this.value)">
       </div>
       <div class="fg">
         <label class="flabel">Contraseña</label>
@@ -2295,8 +2295,8 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
         · <a onclick="switchAuth('registro')" style="cursor:pointer">Crear cuenta</a>
       </p>
 
-      <!-- Demo rápido -->
-      <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--crema)">
+      <!-- Demo rápido — solo visible para Horacio (admin) -->
+      <div id="demo-acceso-rapido" style="display:none;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--crema)">
         <div style="font-size:10px;color:var(--gris-mid);text-align:center;margin-bottom:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase">Acceso rápido · Demo</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
           <button class="btn-demo" onclick="simLoginComo('vendedor')">Vendedor</button>
@@ -2712,11 +2712,12 @@ let userSession = null;
 
 // Escuchar cambios de sesión al cargar
 db.auth.onAuthStateChange(async (event, session) => {
-  if(event === 'SIGNED_IN' && session){
+  if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && !userSession){
     await cargarPerfilUsuario(session.user);
   } else if(event === 'SIGNED_OUT'){
     userSession = null;
     mostrarNavPublico();
+    goTo('landing');
   } else if(event === 'PASSWORD_RECOVERY'){
     mostrarToast('✓ Revisá tu email para restablecer la contraseña');
   }
@@ -3000,7 +3001,13 @@ async function cerrarSesion(){
   mostrarToast('Sesión cerrada');
 }
 
-// ── DEMO RÁPIDO (mantener para desarrollo) ──
+// ── DEMO RÁPIDO — solo admin ──
+function checkDemoAccess(email){
+  const adminEmails = ['horaciobasly@gmail.com','admin@motorsur.com.ar'];
+  const show = adminEmails.some(e => email.toLowerCase().includes(e.split('@')[0]));
+  const el = document.getElementById('demo-acceso-rapido');
+  if(el) el.style.display = show ? 'block' : 'none';
+}
 function simLogin(){ simLoginComo('vendedor'); }
 
 function simLoginComo(tipo){
