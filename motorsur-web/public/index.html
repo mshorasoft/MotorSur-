@@ -1339,7 +1339,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       <div class="foot-col">
         <h4>Plataforma</h4>
         <a onclick="goTo('landing');setTimeout(()=>document.getElementById('autos').scrollIntoView({behavior:'smooth'}),100)">Vehículos</a>
-        <a onclick="userSession ? abrirNuevaPublicacion() : abrirAuth('registro')">Publicar auto</a>
+        <a onclick="abrirNuevaPublicacion()">Publicar auto</a>
         <a onclick="goTo('landing');setTimeout(()=>document.getElementById('planes').scrollIntoView({behavior:'smooth'}),100)">Planes</a>
         <a onclick="abrirAuth('login')">Mi cuenta</a>
       </div>
@@ -3203,8 +3203,7 @@ function confirmarDeclaracion(){
 async function enviarMsg(lado){
   // Verificar membresía para comprador
   if(lado === 'c' && userSession && !userSession.membresia_activa){
-    mostrarToast('⚠ Necesitás una membresía activa para chatear con vendedores');
-    setTimeout(() => abrirMercadoPago(userSession.tipo), 1200);
+    requiereMembresia('chatear con vendedores');
     return;
   }
   const inp = document.getElementById('cinput-'+lado);
@@ -3394,7 +3393,42 @@ function filtrarC(q){
 // ════════════════════════════════════════
 // NUEVA PUBLICACIÓN
 // ════════════════════════════════════════
+function requiereMembresia(accion){
+  if(!userSession){ abrirAuth('registro'); return false; }
+  if(!userSession.membresia_activa){
+    const tipo = userSession.tipo === 'vendedor' ? 'vendedor' : 'comprador';
+    const precio = tipo === 'vendedor' ? '$10.000/mes' : '$5.000/mes';
+    // Modal de bloqueo hostigante
+    const existing = document.getElementById('modal-membresia-bloqueo');
+    if(existing) existing.remove();
+    const modal = document.createElement('div');
+    modal.id = 'modal-membresia-bloqueo';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(10,22,40,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+    modal.innerHTML = `
+      <div style="background:#fff;border-radius:20px;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+        <div style="font-size:48px;margin-bottom:1rem">🔒</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--azul);margin-bottom:.5rem">MEMBRESÍA REQUERIDA</div>
+        <div style="font-size:14px;color:var(--texto-suave);line-height:1.6;margin-bottom:1.5rem">
+          Para <strong>${accion}</strong> necesitás una membresía activa.<br>
+          Plan ${tipo}: <strong style="color:var(--naranja)">${precio}</strong>
+        </div>
+        <button onclick="document.getElementById('modal-membresia-bloqueo').remove();abrirMercadoPago('${tipo}')" 
+          style="width:100%;padding:14px;background:var(--naranja);color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:.75rem">
+          💳 Activar membresía ahora
+        </button>
+        <button onclick="document.getElementById('modal-membresia-bloqueo').remove()"
+          style="width:100%;padding:10px;background:transparent;color:var(--gris-mid);border:1px solid var(--crema);border-radius:10px;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer">
+          Cancelar
+        </button>
+      </div>`;
+    document.body.appendChild(modal);
+    return false;
+  }
+  return true;
+}
+
 function abrirNuevaPublicacion(){
+  if(!requiereMembresia('publicar un vehículo')) return;
   document.getElementById('mov-nueva-pub').classList.add('open');
 }
 
@@ -4071,6 +4105,7 @@ function actualizarPreviewCard(){
 // SUPABASE — guardar publicación real
 // ════════════════════════════════════════
 async function publicarVehiculo(){
+  if(!requiereMembresia('publicar un vehículo')) return;
   const patente = document.getElementById('input-patente')?.value?.trim()||'';
   const marca = document.getElementById('np-marca')?.value?.trim()||'';
   const modelo = document.getElementById('np-modelo')?.value?.trim()||'';
@@ -4269,8 +4304,7 @@ function accionDesdeDetalle(){
     return;
   }
   if(!userSession.membresia_activa){
-    mostrarToast('⚠ Necesitás una membresía activa para contactar vendedores');
-    setTimeout(() => abrirMercadoPago(userSession.tipo), 1200);
+    requiereMembresia('contactar vendedores');
     return;
   }
   // Simular card para abrirInteres
