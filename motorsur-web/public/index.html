@@ -1541,12 +1541,12 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
           </div>
           <div class="chat-panel">
             <div class="chat-topbar">
-              <div class="sb-avatar" id="chat-av-v" style="background:var(--naranja)">AG</div>
+              <div class="sb-avatar" id="chat-av-v" style="background:var(--naranja)">—</div>
               <div>
-                <div style="font-size:13px;font-weight:700" id="chat-nombre-v">Ana G.</div>
+                <div style="font-size:13px;font-weight:700" id="chat-nombre-v">—</div>
                 <div style="font-size:11px;color:var(--gris-mid)" id="chat-sub-v">Ford Ranger XL 2021 · Contacto registrado 06/04/2025 14:30</div>
               </div>
-              <button class="btn-action sm outline" style="margin-left:auto;white-space:nowrap" onclick="analizarConvIA('v')">🤖 Analizar IA</button>
+              <!-- Analizar IA: solo disponible para admin -->
             </div>
             <div id="ia-analisis-v" style="display:none;padding:10px 1rem;border-bottom:1px solid var(--crema);font-size:12px"></div>
             <div class="chat-messages" id="msgs-v">
@@ -1785,7 +1785,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
                 <div style="font-size:13px;font-weight:700" id="chat-nombre-c">—</div>
                 <div style="font-size:11px;color:var(--gris-mid)" id="chat-sub-c">Seleccioná una conversación</div>
               </div>
-              <button class="btn-action sm outline" style="margin-left:auto;white-space:nowrap" onclick="analizarConvIA('c')">🤖 Analizar IA</button>
+              <!-- Analizar IA solo para admin -->
             </div>
             <div id="ia-analisis-c" style="display:none;padding:10px 1rem;border-bottom:1px solid var(--crema);font-size:12px"></div>
             <div class="chat-messages" id="msgs-c">
@@ -1835,8 +1835,8 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       <div class="sb-item" onclick="setPA('alertas-a',this)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1 10H7z" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="8" cy="14" r="1" fill="currentColor"/></svg>Alertas IA <span class="sb-badge red">1</span></div>
       <div class="sb-foot">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="sb-avatar" style="background:var(--azul)">AD</div>
-          <div><div style="font-size:12px;font-weight:700;color:var(--azul)">Administrador</div><div style="font-size:10px;color:var(--gris-mid)">MotorSur</div></div>
+          <div class="sb-avatar" id="pa-sb-avatar" style="background:var(--azul)">AD</div>
+          <div><div style="font-size:12px;font-weight:700;color:var(--azul)" id="pa-sb-nombre">Administrador</div><div style="font-size:10px;color:var(--gris-mid)">MotorSur</div></div>
         </div>
         <button class="btn-action outline sm" style="width:100%;margin-top:.75rem" onclick="goTo('landing')">← Volver al sitio</button>
       </div>
@@ -1995,6 +1995,21 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
           <div id="tabla-seguimientos">
             <div style="font-size:13px;color:var(--gris-mid);text-align:center;padding:1rem">Cargando...</div>
           </div>
+        </div>
+
+        <!-- Analizar conversación con IA -->
+        <div style="background:#fff;border:1.5px solid var(--crema);border-radius:14px;padding:1.25rem;margin-top:1.5rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--azul)">🤖 Analizar conversación con IA</div>
+              <div style="font-size:11px;color:var(--gris-mid);margin-top:2px">Pegá el ID de contacto o seleccioná un caso para analizar posible evasión</div>
+            </div>
+            <button class="btn-action orange" onclick="analizarConvIAAdmin()">Analizar</button>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:.75rem">
+            <input class="finput" type="text" id="admin-ia-input" placeholder="ID de contacto o nombre del vendedor..." style="flex:1;padding:9px 14px;font-size:13px">
+          </div>
+          <div id="admin-ia-resultado" style="display:none;background:var(--blanco);border-radius:10px;padding:12px;font-size:13px;border:1px solid var(--crema)"></div>
         </div>
 
         <!-- Historial de acciones -->
@@ -2791,7 +2806,13 @@ function activarSesion(){
   }
 
   if(userSession.tipo === 'comprador') renderizarListaChatsComprador();
-  if(userSession.tipo === 'admin') suscribirAlertasRealtime();
+  if(userSession.tipo === 'admin'){
+    suscribirAlertasRealtime();
+    const av = document.getElementById('pa-sb-avatar');
+    const nm = document.getElementById('pa-sb-nombre');
+    if(av) av.textContent = userSession.initials;
+    if(nm) nm.textContent = userSession.nombre;
+  }
 
   // Verificar si la cuenta está suspendida
   verificarCuentaSuspendida();
@@ -3180,6 +3201,12 @@ function confirmarDeclaracion(){
 // CHAT
 // ════════════════════════════════════════
 async function enviarMsg(lado){
+  // Verificar membresía para comprador
+  if(lado === 'c' && userSession && !userSession.membresia_activa){
+    mostrarToast('⚠ Necesitás una membresía activa para chatear con vendedores');
+    setTimeout(() => abrirMercadoPago(userSession.tipo), 1200);
+    return;
+  }
   const inp = document.getElementById('cinput-'+lado);
   const msgs = document.getElementById('msgs-'+lado);
   const txt = inp.value.trim();
@@ -3528,6 +3555,45 @@ function seleccionarConvC(el,conv){
 // ════════════════════════════════════════
 // IA ANTI-EVASIÓN
 // ════════════════════════════════════════
+async function analizarConvIAAdmin(){
+  const input = document.getElementById('admin-ia-input')?.value?.trim();
+  const res = document.getElementById('admin-ia-resultado');
+  if(!input){ mostrarToast('⚠ Ingresá un ID o nombre de vendedor'); return; }
+  if(!res) return;
+  res.style.display = 'block';
+  res.innerHTML = '<span style="color:var(--gris-mid)">Analizando con IA...</span>';
+  try {
+    const resp = await fetch('https://pdpcztklnalhkbcjyeoh.supabase.co/functions/v1/analizar-evasion', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkcGN6dGtsbmFsaGtiY2p5ZW9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MDA3NDQsImV4cCI6MjA5MTI3Njc0NH0.ZPrBIuyVTbOzUqMWRpA9kx6zIPYwd7LH1yPQXObkPVo'},
+      body: JSON.stringify({
+        vendedor_nombre: input,
+        vehiculo_nombre: 'No especificado',
+        precio_publicado: null,
+        precio_declarado: null,
+        dias_sin_respuesta: 0,
+        contactos_registrados: 0
+      })
+    });
+    const data = await resp.json();
+    const a = data.analisis;
+    if(a){
+      const color = a.riesgo==='ALTO' ? 'var(--rojo)' : a.riesgo==='MEDIO' ? 'var(--amarillo)' : 'var(--verde)';
+      res.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem">
+          <span style="font-weight:800;font-size:16px;color:${color}">${a.riesgo}</span>
+          <span style="font-size:12px;color:var(--gris-mid)">Score: ${a.score}/100</span>
+        </div>
+        <div style="font-size:12px;color:var(--texto-suave);margin-bottom:.5rem">${(a.motivos||[]).map(m=>'• '+m).join('<br>')}</div>
+        <div style="font-size:12px;font-weight:600;color:var(--azul)">${a.recomendacion||''}</div>`;
+    } else {
+      res.innerHTML = '<span style="color:var(--rojo)">Error al analizar. Verificá la Edge Function.</span>';
+    }
+  } catch(e) {
+    res.innerHTML = '<span style="color:var(--rojo)">Error de conexión con la IA: '+e.message+'</span>';
+  }
+}
+
 async function analizarConvIA(lado){
   const msgsDiv=document.getElementById('msgs-'+lado);
   const textos=Array.from(msgsDiv.querySelectorAll('.msg')).map(m=>{
@@ -4200,6 +4266,11 @@ function accionDesdeDetalle(){
   cerrarMov('detalle');
   if(!userSession){
     abrirAuth('registro');
+    return;
+  }
+  if(!userSession.membresia_activa){
+    mostrarToast('⚠ Necesitás una membresía activa para contactar vendedores');
+    setTimeout(() => abrirMercadoPago(userSession.tipo), 1200);
     return;
   }
   // Simular card para abrirInteres
