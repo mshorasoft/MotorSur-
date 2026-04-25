@@ -929,9 +929,9 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
     <span style="font-size:13px;color:rgba(255,255,255,.6)" id="nav-username"></span>
     <div class="nav-avatar" id="nav-av" onclick="toggleUserMenu()">CM</div>
     <div id="user-menu" style="display:none;position:absolute;top:68px;right:2.5rem;background:#fff;border:1px solid var(--crema);border-radius:14px;padding:.5rem;min-width:190px;z-index:400;box-shadow:0 8px 30px rgba(0,0,0,.12)">
-      <div id="umenu-vendedor" class="umenu-item" style="display:none" onclick="goTo('panel-vendedor')">📊 Mi panel</div>
-      <div id="umenu-comprador" class="umenu-item" style="display:none" onclick="goTo('panel-comprador')">🔍 Mi panel</div>
-      <div id="umenu-admin" class="umenu-item" style="display:none" onclick="goTo('panel-admin')">⚙️ Administrador</div>
+      <div class="umenu-item" onclick="goTo('panel-vendedor')">📊 Panel vendedor</div>
+      <div class="umenu-item" onclick="goTo('panel-comprador')">🔍 Panel comprador</div>
+      <div class="umenu-item" onclick="goTo('panel-admin')">⚙️ Administrador</div>
       <div style="border-top:1px solid var(--crema);margin:.25rem 0"></div>
       <div class="umenu-item" style="color:var(--rojo)" onclick="cerrarSesion()">← Cerrar sesión</div>
     </div>
@@ -1339,7 +1339,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       <div class="foot-col">
         <h4>Plataforma</h4>
         <a onclick="goTo('landing');setTimeout(()=>document.getElementById('autos').scrollIntoView({behavior:'smooth'}),100)">Vehículos</a>
-        <a onclick="abrirNuevaPublicacion()">Publicar auto</a>
+        <a onclick="userSession ? abrirNuevaPublicacion() : abrirAuth('registro')">Publicar auto</a>
         <a onclick="goTo('landing');setTimeout(()=>document.getElementById('planes').scrollIntoView({behavior:'smooth'}),100)">Planes</a>
         <a onclick="abrirAuth('login')">Mi cuenta</a>
       </div>
@@ -1414,10 +1414,10 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       </div>
       <div class="sb-foot">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="sb-avatar" id="pv-sb-avatar" style="background:var(--azul)">—</div>
+          <div class="sb-avatar" style="background:var(--azul)">CM</div>
           <div>
-            <div style="font-size:12px;font-weight:700;color:var(--azul)" id="pv-sb-nombre">—</div>
-            <div style="font-size:10px;color:var(--verde)" id="pv-sb-membresia">● Membresía activa</div>
+            <div style="font-size:12px;font-weight:700;color:var(--azul)">Carlos M.</div>
+            <div style="font-size:10px;color:var(--verde)">● Membresía activa</div>
           </div>
         </div>
         <button class="btn-action outline sm" style="width:100%;margin-top:.75rem" onclick="goTo('landing')">← Volver al sitio</button>
@@ -1541,12 +1541,12 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
           </div>
           <div class="chat-panel">
             <div class="chat-topbar">
-              <div class="sb-avatar" id="chat-av-v" style="background:var(--naranja)">—</div>
+              <div class="sb-avatar" id="chat-av-v" style="background:var(--naranja)">AG</div>
               <div>
-                <div style="font-size:13px;font-weight:700" id="chat-nombre-v">—</div>
+                <div style="font-size:13px;font-weight:700" id="chat-nombre-v">Ana G.</div>
                 <div style="font-size:11px;color:var(--gris-mid)" id="chat-sub-v">Ford Ranger XL 2021 · Contacto registrado 06/04/2025 14:30</div>
               </div>
-              <!-- Analizar IA: solo disponible para admin -->
+              <button class="btn-action sm outline" style="margin-left:auto;white-space:nowrap" onclick="analizarConvIA('v')">🤖 Analizar IA</button>
             </div>
             <div id="ia-analisis-v" style="display:none;padding:10px 1rem;border-bottom:1px solid var(--crema);font-size:12px"></div>
             <div class="chat-messages" id="msgs-v">
@@ -1628,10 +1628,10 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       </div>
       <div class="sb-foot">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="sb-avatar" id="pc-sb-avatar" style="background:var(--naranja)">AG</div>
+          <div class="sb-avatar" style="background:var(--naranja)">AG</div>
           <div>
-            <div style="font-size:12px;font-weight:700;color:var(--azul)" id="pc-sb-nombre">—</div>
-            <div style="font-size:10px;color:var(--verde)" id="pc-sb-membresia">● Membresía activa</div>
+            <div style="font-size:12px;font-weight:700;color:var(--azul)">Ana G.</div>
+            <div style="font-size:10px;color:var(--verde)">● Membresía activa</div>
           </div>
         </div>
         <button class="btn-action outline sm" style="width:100%;margin-top:.75rem" onclick="goTo('landing')">← Volver al sitio</button>
@@ -1785,7 +1785,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
                 <div style="font-size:13px;font-weight:700" id="chat-nombre-c">—</div>
                 <div style="font-size:11px;color:var(--gris-mid)" id="chat-sub-c">Seleccioná una conversación</div>
               </div>
-              <!-- Analizar IA solo para admin -->
+              <button class="btn-action sm outline" style="margin-left:auto;white-space:nowrap" onclick="analizarConvIA('c')">🤖 Analizar IA</button>
             </div>
             <div id="ia-analisis-c" style="display:none;padding:10px 1rem;border-bottom:1px solid var(--crema);font-size:12px"></div>
             <div class="chat-messages" id="msgs-c">
@@ -1835,8 +1835,8 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       <div class="sb-item" onclick="setPA('alertas-a',this)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1 10H7z" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="8" cy="14" r="1" fill="currentColor"/></svg>Alertas IA <span class="sb-badge red">1</span></div>
       <div class="sb-foot">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="sb-avatar" id="pa-sb-avatar" style="background:var(--azul)">AD</div>
-          <div><div style="font-size:12px;font-weight:700;color:var(--azul)" id="pa-sb-nombre">Administrador</div><div style="font-size:10px;color:var(--gris-mid)">MotorSur</div></div>
+          <div class="sb-avatar" style="background:var(--azul)">AD</div>
+          <div><div style="font-size:12px;font-weight:700;color:var(--azul)">Administrador</div><div style="font-size:10px;color:var(--gris-mid)">MotorSur</div></div>
         </div>
         <button class="btn-action outline sm" style="width:100%;margin-top:.75rem" onclick="goTo('landing')">← Volver al sitio</button>
       </div>
@@ -1995,21 +1995,6 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
           <div id="tabla-seguimientos">
             <div style="font-size:13px;color:var(--gris-mid);text-align:center;padding:1rem">Cargando...</div>
           </div>
-        </div>
-
-        <!-- Analizar conversación con IA -->
-        <div style="background:#fff;border:1.5px solid var(--crema);border-radius:14px;padding:1.25rem;margin-top:1.5rem">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-            <div>
-              <div style="font-size:13px;font-weight:700;color:var(--azul)">🤖 Analizar conversación con IA</div>
-              <div style="font-size:11px;color:var(--gris-mid);margin-top:2px">Pegá el ID de contacto o seleccioná un caso para analizar posible evasión</div>
-            </div>
-            <button class="btn-action orange" onclick="analizarConvIAAdmin()">Analizar</button>
-          </div>
-          <div style="display:flex;gap:10px;margin-bottom:.75rem">
-            <input class="finput" type="text" id="admin-ia-input" placeholder="ID de contacto o nombre del vendedor..." style="flex:1;padding:9px 14px;font-size:13px">
-          </div>
-          <div id="admin-ia-resultado" style="display:none;background:var(--blanco);border-radius:10px;padding:12px;font-size:13px;border:1px solid var(--crema)"></div>
         </div>
 
         <!-- Historial de acciones -->
@@ -2293,7 +2278,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
 
       <div class="fg">
         <label class="flabel">Email</label>
-        <input class="finput" type="email" id="login-email" placeholder="tu@email.com" autocomplete="email" oninput="checkDemoAccess(this.value)">
+        <input class="finput" type="email" id="login-email" placeholder="tu@email.com" autocomplete="email">
       </div>
       <div class="fg">
         <label class="flabel">Contraseña</label>
@@ -2310,8 +2295,8 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
         · <a onclick="switchAuth('registro')" style="cursor:pointer">Crear cuenta</a>
       </p>
 
-      <!-- Demo rápido — solo visible para Horacio (admin) -->
-      <div id="demo-acceso-rapido" style="display:none;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--crema)">
+      <!-- Demo rápido -->
+      <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--crema)">
         <div style="font-size:10px;color:var(--gris-mid);text-align:center;margin-bottom:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase">Acceso rápido · Demo</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
           <button class="btn-demo" onclick="simLoginComo('vendedor')">Vendedor</button>
@@ -2695,17 +2680,8 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
 // NAVEGACIÓN
 // ════════════════════════════════════════
 function goTo(page){
-  // Protección de acceso por rol
-  if(page === 'panel-admin' && userSession?.tipo !== 'admin') {
-    page = userSession?.tipo === 'vendedor' ? 'panel-vendedor' : userSession ? 'panel-comprador' : 'landing';
-  }
-  if(page === 'panel-vendedor' && userSession?.tipo === 'comprador') page = 'panel-comprador';
-  if(page === 'panel-comprador' && userSession?.tipo === 'vendedor') page = 'panel-vendedor';
-
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const el = document.getElementById('page-'+page);
-  if(!el) return;
-  el.classList.add('active');
+  document.getElementById('page-'+page).classList.add('active');
   window.scrollTo(0,0);
   const isPanel = page.startsWith('panel');
   document.getElementById('nav-public').style.display = isPanel ? 'none' : 'flex';
@@ -2727,12 +2703,11 @@ let userSession = null;
 
 // Escuchar cambios de sesión al cargar
 db.auth.onAuthStateChange(async (event, session) => {
-  if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && !userSession){
+  if(event === 'SIGNED_IN' && session){
     await cargarPerfilUsuario(session.user);
   } else if(event === 'SIGNED_OUT'){
     userSession = null;
     mostrarNavPublico();
-    goTo('landing');
   } else if(event === 'PASSWORD_RECOVERY'){
     mostrarToast('✓ Revisá tu email para restablecer la contraseña');
   }
@@ -2782,37 +2757,10 @@ async function cargarPerfilUsuario(user){
 
 function activarSesion(){
   if(!userSession) return;
-  mostrarNavUsuario(userSession.nombre, userSession.initials, userSession.tipo);
+  mostrarNavUsuario(userSession.nombre, userSession.initials);
   goTo(userSession.page);
-
-  // Actualizar sidebar con datos reales del usuario
-  const membresia = userSession.membresia_activa ? '● Membresía activa' : '○ Sin membresía';
-  const colorMembresia = userSession.membresia_activa ? 'var(--verde)' : 'var(--gris-mid)';
-  if(userSession.tipo === 'comprador'){
-    const av = document.getElementById('pc-sb-avatar');
-    const nm = document.getElementById('pc-sb-nombre');
-    const mb = document.getElementById('pc-sb-membresia');
-    if(av) av.textContent = userSession.initials;
-    if(nm) nm.textContent = userSession.nombre;
-    if(mb){ mb.textContent = membresia; mb.style.color = colorMembresia; }
-  }
-  if(userSession.tipo === 'vendedor'){
-    const av = document.getElementById('pv-sb-avatar');
-    const nm = document.getElementById('pv-sb-nombre');
-    const mb = document.getElementById('pv-sb-membresia');
-    if(av) av.textContent = userSession.initials;
-    if(nm) nm.textContent = userSession.nombre;
-    if(mb){ mb.textContent = membresia; mb.style.color = colorMembresia; }
-  }
-
   if(userSession.tipo === 'comprador') renderizarListaChatsComprador();
-  if(userSession.tipo === 'admin'){
-    suscribirAlertasRealtime();
-    const av = document.getElementById('pa-sb-avatar');
-    const nm = document.getElementById('pa-sb-nombre');
-    if(av) av.textContent = userSession.initials;
-    if(nm) nm.textContent = userSession.nombre;
-  }
+  if(userSession.tipo === 'admin') suscribirAlertasRealtime();
 
   // Verificar si la cuenta está suspendida
   verificarCuentaSuspendida();
@@ -2862,15 +2810,11 @@ async function verificarCuentaSuspendida(){
   } catch(e){ /* ok si no hay perfil aún */ }
 }
 
-function mostrarNavUsuario(nombre, initials, tipo){
+function mostrarNavUsuario(nombre, initials){
   document.getElementById('nav-btns-public').style.display = 'none';
   document.getElementById('nav-user').style.display = 'flex';
   document.getElementById('nav-username').textContent = nombre;
   document.getElementById('nav-av').textContent = initials;
-  // Mostrar solo el ítem de menú correspondiente al tipo
-  document.getElementById('umenu-vendedor').style.display = tipo === 'vendedor' ? 'block' : 'none';
-  document.getElementById('umenu-comprador').style.display = tipo === 'comprador' ? 'block' : 'none';
-  document.getElementById('umenu-admin').style.display = tipo === 'admin' ? 'block' : 'none';
 }
 
 function mostrarNavPublico(){
@@ -2949,9 +2893,9 @@ async function hacerLogin(){
 
   setAuthLoading('btn-login', true, 'Ingresando...');
   const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+  setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
 
   if(error){
-    setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
     const msgs = {
       'Invalid login credentials': 'Email o contraseña incorrectos',
       'Email not confirmed': 'Confirmá tu email antes de ingresar. Revisá tu bandeja.',
@@ -2960,16 +2904,13 @@ async function hacerLogin(){
     showAuthError('auth-error', msgs[error.message] || 'Error al ingresar. Intentá de nuevo.');
     return;
   }
-
-  // Login exitoso — cargar perfil directamente sin esperar onAuthStateChange
-  if(data?.user){
-    userSession = null; // limpiar cualquier sesión demo previa
-    await cargarPerfilUsuario(data.user);
-  }
-  setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
+  // onAuthStateChange se encarga del resto
 }
 
 // ── REGISTRO REAL ──
+// Datos temporales durante el flujo de registro
+let _regDatosPendientes = null;
+
 async function hacerRegistro(){
   hideAuthErrors();
   const nombre = document.getElementById('reg-nombre')?.value?.trim();
@@ -2984,6 +2925,151 @@ async function hacerRegistro(){
   if(!tipo){ showAuthError('reg-error','Seleccioná el tipo de cuenta'); return; }
   if(!pass || pass.length < 8){ showAuthError('reg-error','La contraseña debe tener al menos 8 caracteres'); return; }
 
+  // Si es VENDEDOR → mostrar contrato obligatorio primero
+  if(tipo === 'vendedor'){
+    _regDatosPendientes = { nombre, email, pass, tipo, dni, telefono };
+    mostrarContratoVendedor(nombre, dni, email);
+    return;
+  }
+
+  // Si es comprador → registrar directo
+  await ejecutarRegistro({ nombre, email, pass, tipo, dni, telefono });
+}
+
+function mostrarContratoVendedor(nombre, dni, email){
+  // Completar datos del firmante en el contrato
+  const now = new Date();
+  document.getElementById('cf-nombre').textContent = nombre || '—';
+  document.getElementById('cf-dni').textContent = dni || '—';
+  document.getElementById('cf-email').textContent = email || '—';
+  document.getElementById('cf-fecha').textContent = now.toLocaleString('es-AR', {
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+  // Obtener IP
+  fetch('https://api.ipify.org?format=json')
+    .then(r => r.json())
+    .then(d => { const el = document.getElementById('cf-ip'); if(el) el.textContent = d.ip || '—'; })
+    .catch(() => { const el = document.getElementById('cf-ip'); if(el) el.textContent = 'No disponible'; });
+
+  // Resetear checkboxes y botón
+  const chk1 = document.getElementById('chk-contrato-1');
+  const chk2 = document.getElementById('chk-contrato-2');
+  if(chk1) chk1.checked = false;
+  if(chk2) chk2.checked = false;
+  verificarCheckboxContrato();
+
+  // Cerrar modal auth y abrir contrato
+  cerrarMov('auth');
+  document.getElementById('mov-contrato-vendedor').classList.add('open');
+  document.getElementById('mov-contrato-vendedor').scrollTop = 0;
+}
+
+function verificarCheckboxContrato(){
+  const chk1 = document.getElementById('chk-contrato-1')?.checked;
+  const chk2 = document.getElementById('chk-contrato-2')?.checked;
+  const btn = document.getElementById('btn-firmar-contrato');
+  if(!btn) return;
+  if(chk1 && chk2){
+    btn.disabled = false;
+    btn.style.background = 'var(--verde)';
+    btn.style.cursor = 'pointer';
+  } else {
+    btn.disabled = true;
+    btn.style.background = 'var(--gris)';
+    btn.style.cursor = 'not-allowed';
+  }
+}
+
+async function firmarContrato(){
+  if(!_regDatosPendientes) return;
+  const btn = document.getElementById('btn-firmar-contrato');
+  if(btn){ btn.textContent = '⏳ Procesando firma...'; btn.disabled = true; }
+
+  // Registrar aceptación con timestamp
+  const fechaAceptacion = new Date().toLocaleString('es-AR', {
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+  const ipEl = document.getElementById('cf-ip');
+  const ip = ipEl ? ipEl.textContent : '—';
+
+  try {
+    // Enviar emails de contrato via Resend (Edge Function)
+    await enviarEmailContrato(_regDatosPendientes, fechaAceptacion, ip);
+  } catch(e) {
+    console.warn('Email de contrato no enviado:', e.message);
+  }
+
+  // Cerrar modal contrato y proceder con el registro
+  cerrarMov('contrato-vendedor');
+  mostrarToast('✓ Contrato firmado. Creando tu cuenta...');
+  await ejecutarRegistro(_regDatosPendientes);
+  _regDatosPendientes = null;
+}
+
+async function enviarEmailContrato(datos, fecha, ip){
+  const { nombre, email, dni, tipo } = datos;
+
+  const htmlContrato = `
+    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px">
+      <div style="font-family:sans-serif;font-size:26px;font-weight:900;color:#0A1628;margin-bottom:4px">
+        Motor<span style="color:#FF5C1A">Sur</span>
+      </div>
+      <div style="font-size:12px;color:#9A9690;margin-bottom:24px">San Rafael, Mendoza · Plataforma de Compraventa de Vehículos</div>
+
+      <div style="background:#E0F2E9;border-radius:10px;padding:14px;margin-bottom:20px;border:1px solid #A3D9B7">
+        <div style="font-size:14px;font-weight:700;color:#175C36">✅ Contrato de Adhesión — Firmado Digitalmente</div>
+        <div style="font-size:12px;color:#2E7D52;margin-top:4px">Ley 25.506 de Firma Digital · República Argentina</div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px">
+        <tr style="background:#F5F3EF"><td style="padding:8px 12px;font-weight:700;color:#0A1628;width:40%">Firmante</td><td style="padding:8px 12px">${nombre}</td></tr>
+        <tr><td style="padding:8px 12px;font-weight:700;color:#0A1628">DNI / CUIT</td><td style="padding:8px 12px">${dni || 'No ingresado'}</td></tr>
+        <tr style="background:#F5F3EF"><td style="padding:8px 12px;font-weight:700;color:#0A1628">Email</td><td style="padding:8px 12px">${email}</td></tr>
+        <tr><td style="padding:8px 12px;font-weight:700;color:#0A1628">Tipo de cuenta</td><td style="padding:8px 12px">VENDEDOR</td></tr>
+        <tr style="background:#F5F3EF"><td style="padding:8px 12px;font-weight:700;color:#0A1628">Fecha y hora</td><td style="padding:8px 12px">${fecha}</td></tr>
+        <tr><td style="padding:8px 12px;font-weight:700;color:#0A1628">IP registrada</td><td style="padding:8px 12px">${ip}</td></tr>
+      </table>
+
+      <div style="background:#FFFAFA;border:2px solid #F5BFBF;border-radius:10px;padding:16px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:800;color:#791F1F;margin-bottom:8px">⚠️ CLÁUSULAS ACEPTADAS — RESUMEN EJECUTIVO</div>
+        <ul style="margin:0;padding-left:18px;font-size:12px;color:#791F1F;line-height:1.8">
+          <li><strong>Cláusula 2:</strong> Comisión del 1% sobre el precio final de venta cuando el comprador fue contactado por MotorSur.</li>
+          <li><strong>Cláusula 3:</strong> Todos los datos publicados tienen carácter de declaración jurada. La información falsa es pasible de denuncia penal por estafa (Art. 172 C.P.).</li>
+          <li><strong>Cláusula 4:</strong> Plazo de 5 días hábiles para declarar la venta y pagar la comisión.</li>
+          <li><strong>Cláusula 5:</strong> Prohibido evadir la comisión cerrando el trato fuera de la plataforma.</li>
+          <li><strong>Cláusula 6:</strong> El incumplimiento habilita a MotorSur a iniciar acciones judiciales por cobro de deuda, con inhibición general de bienes e inclusión en registros de deudores.</li>
+          <li><strong>Cláusula 7:</strong> Jurisdicción: Tribunales Ordinarios de San Rafael, Mendoza.</li>
+        </ul>
+      </div>
+
+      <div style="font-size:11px;color:#9A9690;border-top:1px solid #EDE9E1;padding-top:16px;margin-top:16px;line-height:1.6">
+        Este documento es prueba de la aceptación digital del Contrato de Adhesión de MotorSur.<br>
+        Conservalo como respaldo legal. Ante cualquier consulta: <a href="mailto:horaciobasly@gmail.com" style="color:#FF5C1A">horaciobasly@gmail.com</a><br>
+        MotorSur · Calle Santa Cruz 499 · San Rafael, Mendoza · Argentina
+      </div>
+    </div>`;
+
+  // Enviar via Supabase Edge Function (Resend)
+  await fetch('https://pdpcztklnalhkbcjyeoh.supabase.co/functions/v1/enviar-contrato', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkcGN6dGtsbmFsaGtiY2p5ZW9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MDA3NDQsImV4cCI6MjA5MTI3Njc0NH0.ZPrBIuyVTbOzUqMWRpA9kx6zIPYwd7LH1yPQXObkPVo'
+    },
+    body: JSON.stringify({
+      vendedor_email: email,
+      vendedor_nombre: nombre,
+      admin_email: 'horaciobasly@gmail.com',
+      html_contrato: htmlContrato,
+      fecha_aceptacion: fecha,
+      ip
+    })
+  });
+}
+
+async function ejecutarRegistro({ nombre, email, pass, tipo, dni, telefono }){
   setAuthLoading('btn-registrar', true, 'Creando cuenta...');
 
   const { data, error } = await db.auth.signUp({
@@ -3003,25 +3089,30 @@ async function hacerRegistro(){
       'Password should be at least 6 characters': 'La contraseña es muy corta.',
       'Unable to validate email address': 'El formato del email no es válido.'
     };
+    // Reabrir modal auth con error
+    document.getElementById('mov-auth').classList.add('open');
+    switchAuth('registro');
     showAuthError('reg-error', msgs[error.message] || error.message);
     return;
   }
 
-  // Guardar perfil en tabla perfiles
+  // Guardar perfil + aceptación contrato en Supabase
   if(data.user){
     await db.from('perfiles').upsert({
       user_id: data.user.id,
       nombre, email, tipo, dni, telefono,
+      contrato_aceptado: tipo === 'vendedor',
+      contrato_fecha: tipo === 'vendedor' ? new Date().toISOString() : null,
       created_at: new Date().toISOString()
     });
   }
 
-  // Si Supabase confirmación automática desactivada → mostrar pantalla verify
+  // Si confirmación desactivada → mostrar pantalla verify
   if(data.user && !data.session){
+    document.getElementById('mov-auth').classList.add('open');
     document.getElementById('verify-email-shown').textContent = email;
     switchAuth('verify');
   }
-  // Si confirmación automática activada → onAuthStateChange lo maneja
 }
 
 // ── RECOVERY ──
@@ -3049,13 +3140,7 @@ async function cerrarSesion(){
   mostrarToast('Sesión cerrada');
 }
 
-// ── DEMO RÁPIDO — solo admin ──
-function checkDemoAccess(email){
-  const adminEmails = ['horaciobasly@gmail.com','admin@motorsur.com.ar'];
-  const show = adminEmails.some(e => email.toLowerCase().includes(e.split('@')[0]));
-  const el = document.getElementById('demo-acceso-rapido');
-  if(el) el.style.display = show ? 'block' : 'none';
-}
+// ── DEMO RÁPIDO (mantener para desarrollo) ──
 function simLogin(){ simLoginComo('vendedor'); }
 
 function simLoginComo(tipo){
@@ -3201,11 +3286,6 @@ function confirmarDeclaracion(){
 // CHAT
 // ════════════════════════════════════════
 async function enviarMsg(lado){
-  // Verificar membresía para comprador
-  if(lado === 'c' && userSession && !userSession.membresia_activa){
-    requiereMembresia('chatear con vendedores');
-    return;
-  }
   const inp = document.getElementById('cinput-'+lado);
   const msgs = document.getElementById('msgs-'+lado);
   const txt = inp.value.trim();
@@ -3393,42 +3473,7 @@ function filtrarC(q){
 // ════════════════════════════════════════
 // NUEVA PUBLICACIÓN
 // ════════════════════════════════════════
-function requiereMembresia(accion){
-  if(!userSession){ abrirAuth('registro'); return false; }
-  if(!userSession.membresia_activa){
-    const tipo = userSession.tipo === 'vendedor' ? 'vendedor' : 'comprador';
-    const precio = tipo === 'vendedor' ? '$10.000/mes' : '$5.000/mes';
-    // Modal de bloqueo hostigante
-    const existing = document.getElementById('modal-membresia-bloqueo');
-    if(existing) existing.remove();
-    const modal = document.createElement('div');
-    modal.id = 'modal-membresia-bloqueo';
-    modal.style.cssText = 'position:fixed;inset:0;background:rgba(10,22,40,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-    modal.innerHTML = `
-      <div style="background:#fff;border-radius:20px;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-        <div style="font-size:48px;margin-bottom:1rem">🔒</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--azul);margin-bottom:.5rem">MEMBRESÍA REQUERIDA</div>
-        <div style="font-size:14px;color:var(--texto-suave);line-height:1.6;margin-bottom:1.5rem">
-          Para <strong>${accion}</strong> necesitás una membresía activa.<br>
-          Plan ${tipo}: <strong style="color:var(--naranja)">${precio}</strong>
-        </div>
-        <button onclick="document.getElementById('modal-membresia-bloqueo').remove();abrirMercadoPago('${tipo}')" 
-          style="width:100%;padding:14px;background:var(--naranja);color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:.75rem">
-          💳 Activar membresía ahora
-        </button>
-        <button onclick="document.getElementById('modal-membresia-bloqueo').remove()"
-          style="width:100%;padding:10px;background:transparent;color:var(--gris-mid);border:1px solid var(--crema);border-radius:10px;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer">
-          Cancelar
-        </button>
-      </div>`;
-    document.body.appendChild(modal);
-    return false;
-  }
-  return true;
-}
-
 function abrirNuevaPublicacion(){
-  if(!requiereMembresia('publicar un vehículo')) return;
   document.getElementById('mov-nueva-pub').classList.add('open');
 }
 
@@ -3589,45 +3634,6 @@ function seleccionarConvC(el,conv){
 // ════════════════════════════════════════
 // IA ANTI-EVASIÓN
 // ════════════════════════════════════════
-async function analizarConvIAAdmin(){
-  const input = document.getElementById('admin-ia-input')?.value?.trim();
-  const res = document.getElementById('admin-ia-resultado');
-  if(!input){ mostrarToast('⚠ Ingresá un ID o nombre de vendedor'); return; }
-  if(!res) return;
-  res.style.display = 'block';
-  res.innerHTML = '<span style="color:var(--gris-mid)">Analizando con IA...</span>';
-  try {
-    const resp = await fetch('https://pdpcztklnalhkbcjyeoh.supabase.co/functions/v1/analizar-evasion', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkcGN6dGtsbmFsaGtiY2p5ZW9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MDA3NDQsImV4cCI6MjA5MTI3Njc0NH0.ZPrBIuyVTbOzUqMWRpA9kx6zIPYwd7LH1yPQXObkPVo'},
-      body: JSON.stringify({
-        vendedor_nombre: input,
-        vehiculo_nombre: 'No especificado',
-        precio_publicado: null,
-        precio_declarado: null,
-        dias_sin_respuesta: 0,
-        contactos_registrados: 0
-      })
-    });
-    const data = await resp.json();
-    const a = data.analisis;
-    if(a){
-      const color = a.riesgo==='ALTO' ? 'var(--rojo)' : a.riesgo==='MEDIO' ? 'var(--amarillo)' : 'var(--verde)';
-      res.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem">
-          <span style="font-weight:800;font-size:16px;color:${color}">${a.riesgo}</span>
-          <span style="font-size:12px;color:var(--gris-mid)">Score: ${a.score}/100</span>
-        </div>
-        <div style="font-size:12px;color:var(--texto-suave);margin-bottom:.5rem">${(a.motivos||[]).map(m=>'• '+m).join('<br>')}</div>
-        <div style="font-size:12px;font-weight:600;color:var(--azul)">${a.recomendacion||''}</div>`;
-    } else {
-      res.innerHTML = '<span style="color:var(--rojo)">Error al analizar. Verificá la Edge Function.</span>';
-    }
-  } catch(e) {
-    res.innerHTML = '<span style="color:var(--rojo)">Error de conexión con la IA: '+e.message+'</span>';
-  }
-}
-
 async function analizarConvIA(lado){
   const msgsDiv=document.getElementById('msgs-'+lado);
   const textos=Array.from(msgsDiv.querySelectorAll('.msg')).map(m=>{
@@ -4105,7 +4111,6 @@ function actualizarPreviewCard(){
 // SUPABASE — guardar publicación real
 // ════════════════════════════════════════
 async function publicarVehiculo(){
-  if(!requiereMembresia('publicar un vehículo')) return;
   const patente = document.getElementById('input-patente')?.value?.trim()||'';
   const marca = document.getElementById('np-marca')?.value?.trim()||'';
   const modelo = document.getElementById('np-modelo')?.value?.trim()||'';
@@ -4301,10 +4306,6 @@ function accionDesdeDetalle(){
   cerrarMov('detalle');
   if(!userSession){
     abrirAuth('registro');
-    return;
-  }
-  if(!userSession.membresia_activa){
-    requiereMembresia('contactar vendedores');
     return;
   }
   // Simular card para abrirInteres
@@ -4851,6 +4852,137 @@ function abrirModalLegal(tipo){
   line-height:1.4;
 ">
   © HB Digital · Horacio Basly
+</div>
+
+
+<!-- ══════════════ MODAL CONTRATO VENDEDOR ══════════════ -->
+<div class="mov" id="mov-contrato-vendedor" style="align-items:flex-start;padding:0;overflow-y:auto">
+  <div style="background:#fff;width:100%;max-width:680px;margin:0 auto;min-height:100vh;position:relative">
+
+    <!-- Header sticky -->
+    <div style="position:sticky;top:0;z-index:10;background:var(--azul);padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff">Contrato de Adhesión · MotorSur</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px">Leé el contrato completo antes de aceptar · Versión 1.2 · 2025</div>
+      </div>
+      <div style="background:var(--naranja);color:#fff;font-size:10px;font-weight:800;padding:5px 12px;border-radius:100px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap">OBLIGATORIO</div>
+    </div>
+
+    <!-- Cuerpo del contrato -->
+    <div style="padding:2rem 1.5rem;font-size:13px;color:var(--texto-suave);line-height:1.8">
+
+      <div style="background:#FFF8ED;border:1px solid #FAEEDA;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;gap:12px;align-items:flex-start">
+        <div style="font-size:24px;flex-shrink:0">⚠️</div>
+        <div style="font-size:13px;color:#633806;line-height:1.6"><strong>Este contrato tiene validez legal.</strong> Al aceptarlo confirmás haber leído y comprendido todas las cláusulas. El incumplimiento puede derivar en acciones judiciales.</div>
+      </div>
+
+      <div style="text-align:center;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--crema)">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--azul)">CONTRATO DE ADHESIÓN</div>
+        <div style="font-size:12px;color:var(--gris-mid);margin-top:4px">Plataforma de Compraventa de Vehículos · San Rafael, Mendoza · Versión 1.2 · 2025</div>
+      </div>
+
+      <p style="margin-bottom:1.25rem"><strong>Entre:</strong><br>
+      <strong>MotorSur</strong>, operada por <strong>Horacio Basly</strong>, CUIL 20-32168505-7, con domicilio en <strong>Calle Santa Cruz 499, San Rafael, Mendoza, Argentina</strong>, en adelante <em>"LA PLATAFORMA"</em>;<br><br>
+      y el <strong>VENDEDOR</strong>, identificado con los datos ingresados al momento del registro, en adelante <em>"EL VENDEDOR"</em>.</p>
+
+      <div style="background:var(--blanco);border-radius:12px;padding:1.25rem;border:1px solid var(--crema);margin-bottom:1rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--azul);margin-bottom:.5rem">CLÁUSULA 1 — OBJETO</div>
+        <p>EL VENDEDOR acepta utilizar MotorSur como plataforma de intermediación para la publicación y comercialización de vehículos automotores, bajo las condiciones aquí establecidas. LA PLATAFORMA actúa exclusivamente como intermediaria y no es parte de la operación de compraventa.</p>
+      </div>
+
+      <div style="background:var(--blanco);border-radius:12px;padding:1.25rem;border:1px solid var(--crema);margin-bottom:1rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--azul);margin-bottom:.5rem">CLÁUSULA 2 — COMISIÓN OBLIGATORIA</div>
+        <p>Cuando un comprador registrado en MotorSur haga clic en <strong>"Me interesa"</strong> sobre una publicación del VENDEDOR, quedará registrado un contacto con fecha y hora exacta. Si dicho contacto derivara en la venta del vehículo — <strong>independientemente del canal por el que se concrete</strong> — EL VENDEDOR deberá abonar a LA PLATAFORMA una comisión del <strong>1% (uno por ciento)</strong> sobre el precio final de venta declarado. Esta obligación subsiste aunque la operación se cierre por teléfono, WhatsApp, redes sociales u otro medio externo a la plataforma.</p>
+      </div>
+
+      <div style="background:#FFFDF5;border-radius:12px;padding:1.25rem;border:1px solid #FAE8A0;margin-bottom:1rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--azul);margin-bottom:.5rem">CLÁUSULA 3 — DECLARACIÓN JURADA Y VERACIDAD</div>
+        <p>El precio publicado, el precio final declarado y <strong>todos los datos del vehículo</strong> (marca, modelo, año, kilometraje, estado, patente, condición mecánica y documentación) tienen carácter de <strong>declaración jurada</strong>.</p>
+        <div style="margin-top:.75rem;padding:.75rem;background:#FFF8ED;border-radius:8px;border:1px solid #FAEEDA">
+          <div style="font-size:11px;font-weight:800;color:#633806;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">⚠ Queda expresamente prohibido:</div>
+          <ul style="margin-left:1rem;display:flex;flex-direction:column;gap:5px;font-size:12px;color:#633806">
+            <li>Publicar información falsa, engañosa o incompleta sobre el vehículo</li>
+            <li>Declarar un precio inferior al real para reducir la comisión</li>
+            <li>Publicar vehículos con deudas, prendas o inhibiciones no declaradas</li>
+            <li>Utilizar fotos que no correspondan al vehículo publicado</li>
+            <li>Ocultar defectos mecánicos, siniestros o condiciones que afecten el valor del bien</li>
+          </ul>
+        </div>
+        <p style="margin-top:.75rem;font-size:12px">La publicación de información falsa o dolosa constituye una <strong>conducta fraudulenta</strong> pasible de denuncia penal por estafa (Art. 172 del Código Penal Argentino) además de las acciones civiles establecidas en la Cláusula 7.</p>
+      </div>
+
+      <div style="background:var(--blanco);border-radius:12px;padding:1.25rem;border:1px solid var(--crema);margin-bottom:1rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--azul);margin-bottom:.5rem">CLÁUSULA 4 — PLAZO DE PAGO</div>
+        <p>EL VENDEDOR deberá declarar la venta y abonar la comisión dentro de los <strong>5 (cinco) días hábiles</strong> de concretada la operación, a través de los medios habilitados en la plataforma (MercadoPago o transferencia bancaria).</p>
+      </div>
+
+      <div style="background:var(--blanco);border-radius:12px;padding:1.25rem;border:1px solid var(--crema);margin-bottom:1rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--azul);margin-bottom:.5rem">CLÁUSULA 5 — EVASIÓN DE COMISIÓN</div>
+        <p>Queda <strong>expresamente prohibido</strong> coordinar o concretar la operación por fuera de la plataforma con el fin de eludir el pago de la comisión. MotorSur cuenta con un sistema de seguimiento, verificación y análisis con inteligencia artificial activo las 24 horas. Cualquier indicio de evasión será investigado, documentado y utilizado como prueba en sede judicial.</p>
+      </div>
+
+      <div style="background:#FFFAFA;border-radius:12px;padding:1.25rem;border:2px solid #F5BFBF;margin-bottom:1rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--rojo);margin-bottom:.75rem">CLÁUSULA 6 — CONSECUENCIAS DEL INCUMPLIMIENTO</div>
+        <div style="background:var(--rojo-light);border-radius:8px;padding:12px;margin-bottom:.75rem">
+          <div style="font-size:11px;font-weight:800;color:var(--rojo);text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">🔴 EL VENDEDOR comprende y acepta expresamente:</div>
+          <ul style="margin-left:1rem;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#791F1F">
+            <li>El incumplimiento del pago habilitará a LA PLATAFORMA a <strong>iniciar acciones judiciales por cobro de deuda</strong> en el fuero civil de San Rafael, <strong>sin necesidad de intimación previa adicional</strong>.</li>
+            <li>Los gastos judiciales, honorarios de letrado y costas del proceso serán a cargo exclusivo de EL VENDEDOR.</li>
+            <li>Se solicitará <strong>inhibición general de bienes</strong> como medida cautelar desde el inicio del proceso.</li>
+            <li>LA PLATAFORMA podrá publicar el incumplimiento en registros de deudores comerciales y plataformas de reputación crediticia.</li>
+            <li>La información falsa podrá ser denunciada ante la <strong>Oficina de Defensa del Consumidor de San Rafael</strong> y ante la <strong>Unidad Fiscal de Delitos Económicos de Mendoza</strong>.</li>
+            <li>La cuenta será <strong>suspendida en forma inmediata y permanente</strong>, sin derecho a reembolso de membresía.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="background:var(--blanco);border-radius:12px;padding:1.25rem;border:1px solid var(--crema);margin-bottom:1rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--azul);margin-bottom:.5rem">CLÁUSULA 7 — JURISDICCIÓN</div>
+        <p>Para cualquier controversia derivada del presente contrato, las partes se someten a la jurisdicción de los <strong>Tribunales Ordinarios de San Rafael, Mendoza, Argentina</strong>, renunciando expresamente a cualquier otro fuero que pudiere corresponder.</p>
+      </div>
+
+      <div style="background:#EEF4FB;border-radius:12px;padding:1.25rem;border:1px solid #B5D4F4;margin-bottom:1.5rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--azul);margin-bottom:.5rem">CLÁUSULA 8 — ACEPTACIÓN DIGITAL</div>
+        <p>La aceptación de este contrato mediante el botón <strong>"Acepto y firmo digitalmente"</strong> tiene plena validez jurídica conforme a la <strong>Ley 25.506 de Firma Digital</strong> de la República Argentina. Se enviará copia del contrato aceptado al email registrado del VENDEDOR y al administrador de LA PLATAFORMA.</p>
+      </div>
+
+      <!-- DATOS DEL FIRMANTE (auto-completados) -->
+      <div style="background:var(--blanco);border-radius:12px;padding:1.25rem;border:1.5px solid var(--azul);margin-bottom:1.5rem">
+        <div style="font-size:11px;font-weight:700;color:var(--azul);text-transform:uppercase;letter-spacing:1px;margin-bottom:.75rem">Datos del firmante</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:13px" id="contrato-datos-firmante">
+          <div>Nombre: <strong id="cf-nombre">—</strong></div>
+          <div>DNI/CUIT: <strong id="cf-dni">—</strong></div>
+          <div>Email: <strong id="cf-email">—</strong></div>
+          <div>Fecha y hora de aceptación: <strong id="cf-fecha">—</strong></div>
+          <div>IP registrada: <strong id="cf-ip">—</strong></div>
+        </div>
+      </div>
+
+      <!-- CHECKBOX OBLIGATORIO -->
+      <div style="background:#FFFDF5;border:2px solid var(--amarillo);border-radius:12px;padding:1.25rem;margin-bottom:1rem">
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer">
+          <input type="checkbox" id="chk-contrato-1" onchange="verificarCheckboxContrato()" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:var(--azul)">
+          <span style="font-size:13px;color:var(--texto);line-height:1.6">He leído y comprendo todas las cláusulas del presente contrato, en especial la <strong>Cláusula 2 (comisión del 1%)</strong>, la <strong>Cláusula 3 (declaración jurada)</strong> y la <strong>Cláusula 6 (consecuencias del incumplimiento incluyendo acciones judiciales)</strong>.</span>
+        </label>
+      </div>
+      <div style="background:#FFFAFA;border:2px solid #F5BFBF;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem">
+        <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer">
+          <input type="checkbox" id="chk-contrato-2" onchange="verificarCheckboxContrato()" style="margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:var(--rojo)">
+          <span style="font-size:13px;color:var(--texto);line-height:1.6">Entiendo que el <strong>incumplimiento del pago de la comisión</strong> puede resultar en <strong>acciones judiciales en mi contra</strong>, con costas e inhibición general de bienes a mi cargo, según lo establecido en la Cláusula 6.</span>
+        </label>
+      </div>
+
+      <!-- BOTÓN FIRMAR -->
+      <button id="btn-firmar-contrato" onclick="firmarContrato()" disabled
+        style="width:100%;padding:16px;background:var(--gris);color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;cursor:not-allowed;transition:all .3s;letter-spacing:.5px">
+        ✍️ Acepto y firmo digitalmente
+      </button>
+      <p style="font-size:11px;color:var(--gris-mid);text-align:center;margin-top:.75rem;line-height:1.5">
+        Al firmar se enviará una copia a tu email y al administrador de MotorSur.<br>
+        Validez legal conforme Ley 25.506 de Firma Digital · Argentina
+      </p>
+    </div>
+  </div>
 </div>
 
 </body>
