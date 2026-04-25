@@ -3690,6 +3690,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   generarScrollRecientes();
   cargarPublicacionesLanding();
   verificarSesionInicial(); // ← Supabase Auth: restaurar sesión si ya estaba logueado
+  verificarRetornoPago();   // ← Verificar si volvió de MercadoPago
 });
 
 // ════════════════════════════════════════
@@ -4402,36 +4403,86 @@ function selMetodoPago(tipo){
 
 async function redirigirMercadoPago(){
   const plan = MP_PRECIOS[mpPlanActual] || {nombre:'Pago MotorSur',precio:10000};
+  if(!userSession){ abrirAuth('login'); return; }
 
+  const btn = document.querySelector('#mov-mercadopago .fsubmit');
+  if(btn){ btn.textContent = 'Conectando con MercadoPago...'; btn.disabled = true; }
   mostrarToast('Conectando con MercadoPago...');
 
-  // En producción: llamar a Supabase Edge Function que crea la preferencia
-  // y devuelve el init_point de MP. Por ahora simulamos con sandbox URL.
   try {
-    // Llamada real a tu Edge Function:
-    // const { data } = await db.functions.invoke('crear-preferencia-mp', {
-    //   body: { plan: mpPlanActual, usuario_id: userSession.id, precio: plan.precio }
-    // });
-    // window.location.href = data.init_point;
+    // Llamada a Edge Function que crea la preferencia real en MP
+    const res = await fetch(
+      'https://pdpcztklnalhkbcjyeoh.supabase.co/functions/v1/crear-preferencia-mp',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkcGN6dGtsbmFsaGtiY2p5ZW9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3MDA3NDQsImV4cCI6MjA5MTI3Njc0NH0.ZPrBIuyVTbOzUqMWRpA9kx6zIPYwd7LH1yPQXObkPVo'
+        },
+        body: JSON.stringify({
+          tipo_cuenta: mpPlanActual,
+          usuario_id: userSession.id,
+          usuario_email: userSession.email,
+          usuario_nombre: userSession.nombreCompleto || userSession.nombre,
+        })
+      }
+    );
 
-    // Demo: abrir sandbox de MercadoPago
-    const mpUrl = `https://www.mercadopago.com.ar/checkout/v1/redirect?preference-id=DEMO_${Date.now()}`;
+    const data = await res.json();
+
+    if(!data.ok || !data.init_point){
+      throw new Error(data.error || 'No se obtuvo link de pago');
+    }
+
+    // Guardar preference_id en sesión para verificar al volver
+    sessionStorage.setItem('ms_mp_preference', data.preference_id);
+    sessionStorage.setItem('ms_mp_tipo', mpPlanActual);
+
     cerrarMov('mercadopago');
-    mostrarToast('✓ En producción: redirige a MercadoPago para pago seguro');
+    mostrarToast('✓ Redirigiendo a MercadoPago...');
 
-    // Registrar intento en Supabase
-    await db.from('pagos').insert([{
-      usuario_id: userSession?.id,
-      usuario_nombre: userSession?.nombreCompleto || userSession?.nombre,
-      tipo: mpPlanActual,
-      monto: plan.precio,
-      metodo: 'mercadopago',
-      estado: 'pendiente',
-      created_at: new Date().toISOString()
-    }]).catch(()=>{});
+    // Redirigir a MercadoPago
+    setTimeout(() => { window.location.href = data.init_point; }, 600);
 
   } catch(e) {
-    mostrarToast('⚠ Error al conectar con MercadoPago. Intentá transferencia.');
+    mostrarToast('⚠ Error: ' + e.message + '. Intentá con transferencia.');
+    if(btn){ btn.textContent = 'Pagar con MercadoPago →'; btn.disabled = false; }
+  }
+}
+
+// Verificar si el usuario volvió de MercadoPago con pago exitoso
+function verificarRetornoPago(){
+  const params = new URLSearchParams(window.location.search);
+  const pago = params.get('pago');
+  const tipo = params.get('tipo');
+  const uid = params.get('uid');
+
+  if(!pago) return;
+
+  // Limpiar URL
+  window.history.replaceState({}, '', window.location.pathname);
+
+  if(pago === 'exitoso'){
+    mostrarToast('✅ ¡Pago aprobado! Tu membresía se está activando...');
+    // Recargar perfil para obtener membresía actualizada
+    setTimeout(async () => {
+      if(userSession?.id){
+        const { data } = await db.from('perfiles')
+          .select('membresia_activa,membresia_vence,membresia_tipo')
+          .eq('user_id', userSession.id)
+          .single();
+        if(data?.membresia_activa){
+          userSession.membresia_activa = true;
+          mostrarToast('✅ ¡Membresía activa! Ya podés usar todas las funciones.');
+          // Actualizar sidebar
+          activarSesion();
+        }
+      }
+    }, 2000);
+  } else if(pago === 'fallido'){
+    mostrarToast('⚠ El pago no se procesó. Podés intentarlo de nuevo.');
+  } else if(pago === 'pendiente'){
+    mostrarToast('⏳ Pago en proceso. Te avisamos cuando se confirme.');
   }
 }
 
