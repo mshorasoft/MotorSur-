@@ -2608,7 +2608,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
     </div>
 
     <div style="background:#EEF4FB;border-radius:10px;padding:12px 14px;font-size:12px;color:#0C447C;margin-bottom:1rem;line-height:1.6">
-      Al publicar declarás el precio bajo carácter de <strong>declaración jurada</strong>. Comisión 1,5% sobre precio final de venta generado por la plataforma (T&C cláusula 2).
+      Al publicar declarás el precio bajo carácter de <strong>declaración jurada</strong>. Comisión 1% sobre precio final de venta generado por la plataforma (T&C cláusula 2).
     </div>
     <button class="fsubmit" id="btn-publicar" onclick="publicarVehiculo()">Publicar vehículo</button>
   </div>
@@ -3904,11 +3904,13 @@ async function suscribirWebPush(){
     });
     // Guardar suscripción en Supabase
     if(userSession?.id){
-      await db.from('push_subscriptions').upsert({
-        user_id: userSession.id,
-        subscription: JSON.stringify(sub),
-        updated_at: new Date().toISOString()
-      }).catch(()=>{});
+      try {
+        await db.from('push_subscriptions').upsert({
+          user_id: userSession.id,
+          subscription: JSON.stringify(sub),
+          updated_at: new Date().toISOString()
+        });
+      } catch(_){}
     }
     console.log('Web Push suscripción activa');
   } catch(e){
@@ -4148,9 +4150,6 @@ function actualizarPreviewCard(){
 // SUPABASE — guardar publicación real
 // ════════════════════════════════════════
 async function publicarVehiculo(){
-  // Verificar membresía antes de publicar
-  if(!requiereMembresia('publicar un vehículo')) return;
-
   const patente = document.getElementById('input-patente')?.value?.trim()||'';
   const marca = document.getElementById('np-marca')?.value?.trim()||'';
   const modelo = document.getElementById('np-modelo')?.value?.trim()||'';
