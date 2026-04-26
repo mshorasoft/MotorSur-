@@ -3510,6 +3510,11 @@ function filtrarC(q){
 // NUEVA PUBLICACIÓN
 // ════════════════════════════════════════
 function abrirNuevaPublicacion(){
+  if(!userSession){ abrirAuth('registro'); return; }
+  if(!userSession.membresia_activa){
+    requiereMembresia('publicar un vehículo');
+    return;
+  }
   document.getElementById('mov-nueva-pub').classList.add('open');
 }
 
@@ -4166,18 +4171,18 @@ async function publicarVehiculo(){
   const vehiculo = {
     marca, modelo,
     anio: parseInt(anio)||null,
-    km: parseInt(document.getElementById('np-km')?.value||0)||0,
-    patente: patente,
+    kilometraje: parseInt(document.getElementById('np-km')?.value||0)||0,
     combustible: document.getElementById('np-comb')?.value||'Nafta',
-    tipo: document.getElementById('np-tipo')?.value||'Auto',
-    transmision: document.getElementById('np-trans')?.value||'Manual',
     color: document.getElementById('np-color')?.value||'',
     precio: parseInt(precio),
-    estado: document.getElementById('np-estado')?.value||'Bueno',
-    descripcion: document.getElementById('np-desc')?.value||'',
+    descripcion: [
+      document.getElementById('np-desc')?.value||'',
+      'Transmisión: ' + (document.getElementById('np-trans')?.value||'Manual'),
+      'Tipo: ' + (document.getElementById('np-tipo')?.value||'Auto'),
+      'Patente: ' + patente
+    ].filter(Boolean).join(' | '),
     vendedor_id: userSession?.id || null,
-    vendedor_nombre: userSession?.nombreCompleto || userSession?.nombre || 'Vendedor',
-    foto_principal: fotosPublicacion.length>0 ? fotosPublicacion[0].dataUrl : null,
+    estado_vehiculo: document.getElementById('np-estado')?.value||'Bueno',
     estado_publicacion: 'activo',
     visitas: 0,
     creado_en: new Date().toISOString()
