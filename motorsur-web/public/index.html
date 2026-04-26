@@ -927,7 +927,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
   </div>
   <div class="nav-user" id="nav-user">
     <span style="font-size:13px;color:rgba(255,255,255,.6)" id="nav-username"></span>
-    <div class="nav-avatar" id="nav-av" onclick="toggleUserMenu()">CM</div>
+    <div class="nav-avatar" id="nav-av" onclick="toggleUserMenu()">—</div>
     <div id="user-menu" style="display:none;position:absolute;top:68px;right:2.5rem;background:#fff;border:1px solid var(--crema);border-radius:14px;padding:.5rem;min-width:190px;z-index:400;box-shadow:0 8px 30px rgba(0,0,0,.12)">
       <div class="umenu-item" onclick="goTo('panel-vendedor')">📊 Panel vendedor</div>
       <div class="umenu-item" onclick="goTo('panel-comprador')">🔍 Panel comprador</div>
@@ -1414,10 +1414,10 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       </div>
       <div class="sb-foot">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="sb-avatar" style="background:var(--azul)">CM</div>
+          <div class="sb-avatar" id="pv-sb-avatar" style="background:var(--azul)">—</div>
           <div>
-            <div style="font-size:12px;font-weight:700;color:var(--azul)">Carlos M.</div>
-            <div style="font-size:10px;color:var(--verde)">● Membresía activa</div>
+            <div style="font-size:12px;font-weight:700;color:var(--azul)" id="pv-sb-nombre">—</div>
+            <div style="font-size:10px;color:var(--gris-mid)" id="pv-sb-membresia">○ Sin membresía</div>
           </div>
         </div>
         <button class="btn-action outline sm" style="width:100%;margin-top:.75rem" onclick="goTo('landing')">← Volver al sitio</button>
@@ -1628,10 +1628,10 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       </div>
       <div class="sb-foot">
         <div style="display:flex;align-items:center;gap:10px">
-          <div class="sb-avatar" style="background:var(--naranja)">AG</div>
+          <div class="sb-avatar" id="pc-sb-avatar" style="background:var(--naranja)">—</div>
           <div>
-            <div style="font-size:12px;font-weight:700;color:var(--azul)">Ana G.</div>
-            <div style="font-size:10px;color:var(--verde)">● Membresía activa</div>
+            <div style="font-size:12px;font-weight:700;color:var(--azul)" id="pc-sb-nombre">—</div>
+            <div style="font-size:10px;color:var(--gris-mid)" id="pc-sb-membresia">○ Sin membresía</div>
           </div>
         </div>
         <button class="btn-action outline sm" style="width:100%;margin-top:.75rem" onclick="goTo('landing')">← Volver al sitio</button>
@@ -2755,14 +2755,48 @@ async function cargarPerfilUsuario(user){
   activarSesion();
 }
 
+function actualizarSidebarUsuario(){
+  if(!userSession) return;
+  const activa = userSession.membresia_activa === true;
+  const membresia = activa ? '● Membresía activa' : '○ Sin membresía';
+  const colorMembresia = activa ? 'var(--verde)' : 'var(--gris-mid)';
+
+  if(userSession.tipo === 'comprador'){
+    const av = document.getElementById('pc-sb-avatar');
+    const nm = document.getElementById('pc-sb-nombre');
+    const mb = document.getElementById('pc-sb-membresia');
+    if(av) av.textContent = userSession.initials;
+    if(nm) nm.textContent = userSession.nombre;
+    if(mb){ mb.textContent = membresia; mb.style.color = colorMembresia; }
+  }
+  if(userSession.tipo === 'vendedor'){
+    const av = document.getElementById('pv-sb-avatar');
+    const nm = document.getElementById('pv-sb-nombre');
+    const mb = document.getElementById('pv-sb-membresia');
+    if(av) av.textContent = userSession.initials;
+    if(nm) nm.textContent = userSession.nombre;
+    if(mb){ mb.textContent = membresia; mb.style.color = colorMembresia; }
+  }
+  if(userSession.tipo === 'admin'){
+    const av = document.getElementById('pa-sb-avatar');
+    const nm = document.getElementById('pa-sb-nombre');
+    if(av) av.textContent = userSession.initials;
+    if(nm) nm.textContent = userSession.nombre;
+  }
+}
+
 function activarSesion(){
   if(!userSession) return;
-  mostrarNavUsuario(userSession.nombre, userSession.initials);
+  mostrarNavUsuario(userSession.nombre, userSession.initials, userSession.tipo);
   goTo(userSession.page);
+
+  // Mostrar nombre real inmediatamente (membresía se actualiza desde Supabase)
+  actualizarSidebarUsuario();
+
   if(userSession.tipo === 'comprador') renderizarListaChatsComprador();
   if(userSession.tipo === 'admin') suscribirAlertasRealtime();
 
-  // Verificar si la cuenta está suspendida
+  // Cargar membresía y estado real desde Supabase
   verificarCuentaSuspendida();
 
   // Push + realtime
@@ -2806,7 +2840,9 @@ async function verificarCuentaSuspendida(){
       return;
     }
 
-    userSession.membresia_activa = data.membresia_activa;
+    userSession.membresia_activa = data.membresia_activa === true;
+    // Actualizar sidebar con estado real de membresía
+    actualizarSidebarUsuario();
   } catch(e){ /* ok si no hay perfil aún */ }
 }
 
@@ -4112,6 +4148,9 @@ function actualizarPreviewCard(){
 // SUPABASE — guardar publicación real
 // ════════════════════════════════════════
 async function publicarVehiculo(){
+  // Verificar membresía antes de publicar
+  if(!requiereMembresia('publicar un vehículo')) return;
+
   const patente = document.getElementById('input-patente')?.value?.trim()||'';
   const marca = document.getElementById('np-marca')?.value?.trim()||'';
   const modelo = document.getElementById('np-modelo')?.value?.trim()||'';
@@ -4137,9 +4176,12 @@ async function publicarVehiculo(){
     precio: parseInt(precio),
     estado: document.getElementById('np-estado')?.value||'Bueno',
     descripcion: document.getElementById('np-desc')?.value||'',
-    vendedor_nombre: userSession?.nombre||'Vendedor',
+    vendedor_id: userSession?.id || null,
+    vendedor_nombre: userSession?.nombreCompleto || userSession?.nombre || 'Vendedor',
     foto_principal: fotosPublicacion.length>0 ? fotosPublicacion[0].dataUrl : null,
-    created_at: new Date().toISOString()
+    estado_publicacion: 'activo',
+    visitas: 0,
+    creado_en: new Date().toISOString()
   };
 
   try {
@@ -4148,20 +4190,21 @@ async function publicarVehiculo(){
 
     cerrarMov('nueva-pub');
     fotosPublicacion = [];
+    if(btn){ btn.textContent='Publicar vehículo'; btn.disabled=false; }
     mostrarToast('✓ Vehículo publicado exitosamente en MotorSur');
 
     // Agregar card a la grilla del vendedor
     if(data && data[0]) agregarCardVendedor(data[0]);
 
   } catch(err) {
-    console.warn('Supabase no disponible, guardando localmente:', err.message);
-    // Fallback local si Supabase no está configurado
-    cerrarMov('nueva-pub');
-    fotosPublicacion = [];
-    mostrarToast('✓ Vehículo publicado (modo demo)');
+    if(btn){ btn.textContent='Publicar vehículo'; btn.disabled=false; }
+    // Mostrar error real al usuario — no modo demo
+    const msg = err.message?.includes('permission') || err.message?.includes('policy')
+      ? '⚠ Sin permisos. Verificá que tu cuenta esté activa en Supabase.'
+      : '⚠ Error al publicar: ' + (err.message || 'Intentá de nuevo');
+    mostrarToast(msg);
+    console.error('Error publicando vehículo:', err);
   }
-
-  if(btn){ btn.textContent='Publicar vehículo'; btn.disabled=false; }
 }
 
 function agregarCardVendedor(v){
