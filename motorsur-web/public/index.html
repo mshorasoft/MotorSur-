@@ -929,9 +929,9 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
     <span style="font-size:13px;color:rgba(255,255,255,.6)" id="nav-username"></span>
     <div class="nav-avatar" id="nav-av" onclick="toggleUserMenu()">—</div>
     <div id="user-menu" style="display:none;position:absolute;top:68px;right:2.5rem;background:#fff;border:1px solid var(--crema);border-radius:14px;padding:.5rem;min-width:190px;z-index:400;box-shadow:0 8px 30px rgba(0,0,0,.12)">
-      <div class="umenu-item" onclick="goTo('panel-vendedor')">📊 Panel vendedor</div>
-      <div class="umenu-item" onclick="goTo('panel-comprador')">🔍 Panel comprador</div>
-      <div class="umenu-item" onclick="goTo('panel-admin')">⚙️ Administrador</div>
+      <div id="umenu-vendedor" class="umenu-item" style="display:none" onclick="goTo('panel-vendedor')">📊 Mi panel</div>
+      <div id="umenu-comprador" class="umenu-item" style="display:none" onclick="goTo('panel-comprador')">🔍 Mi panel</div>
+      <div id="umenu-admin" class="umenu-item" style="display:none" onclick="goTo('panel-admin')">⚙️ Administrador</div>
       <div style="border-top:1px solid var(--crema);margin:.25rem 0"></div>
       <div class="umenu-item" style="color:var(--rojo)" onclick="cerrarSesion()">← Cerrar sesión</div>
     </div>
@@ -2846,11 +2846,18 @@ async function verificarCuentaSuspendida(){
   } catch(e){ /* ok si no hay perfil aún */ }
 }
 
-function mostrarNavUsuario(nombre, initials){
+function mostrarNavUsuario(nombre, initials, tipo){
   document.getElementById('nav-btns-public').style.display = 'none';
   document.getElementById('nav-user').style.display = 'flex';
   document.getElementById('nav-username').textContent = nombre;
   document.getElementById('nav-av').textContent = initials;
+  // Mostrar solo el ítem del menú que corresponde al tipo
+  const mv = document.getElementById('umenu-vendedor');
+  const mc = document.getElementById('umenu-comprador');
+  const ma = document.getElementById('umenu-admin');
+  if(mv) mv.style.display = tipo === 'vendedor' ? 'block' : 'none';
+  if(mc) mc.style.display = tipo === 'comprador' ? 'block' : 'none';
+  if(ma) ma.style.display = tipo === 'admin' ? 'block' : 'none';
 }
 
 function mostrarNavPublico(){
