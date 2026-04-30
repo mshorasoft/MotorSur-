@@ -1260,7 +1260,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
         <div class="step">
           <div class="step-n">04</div>
           <div class="step-t">Cerrá con confianza</div>
-          <div class="step-d">Trato directo, marco legal claro. El vendedor declara la venta y abona comisión 1,5% al cerrar.</div>
+          <div class="step-d">Trato directo, marco legal claro. El vendedor declara la venta y abona comisión 1% al cerrar.</div>
         </div>
       </div>
     </div>
@@ -1450,7 +1450,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
         </div>
         <div class="alert-ban">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#C0392B" stroke-width="1.2"/><path d="M8 5v4M8 11v.5" stroke="#C0392B" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <div><strong>Tenés 1 comisión pendiente de pago</strong> — Chevrolet Cruze 2020 · $14.500.000 × 1,5% = <strong>$217.500</strong>
+          <div><strong>Tenés 1 comisión pendiente de pago</strong> — Chevrolet Cruze 2020 · $14.500.000 × 1% = <strong>$145.000</strong>
             <button class="btn-action sm orange" style="margin-left:10px" onclick="setPV('comisiones-v',null)">Pagar ahora</button>
           </div>
         </div>
@@ -2702,21 +2702,31 @@ function scrollTo2(id){
 let userSession = null;
 
 // Escuchar cambios de sesión al cargar
+let _cargandoPerfil = false;
 db.auth.onAuthStateChange(async (event, session) => {
-  if(event === 'SIGNED_IN' && session){
+  if(event === 'SIGNED_IN' && session && !_cargandoPerfil){
+    _cargandoPerfil = true;
     await cargarPerfilUsuario(session.user);
+    _cargandoPerfil = false;
   } else if(event === 'SIGNED_OUT'){
     userSession = null;
+    _cargandoPerfil = false;
     mostrarNavPublico();
+    goTo('landing');
   } else if(event === 'PASSWORD_RECOVERY'){
     mostrarToast('✓ Revisá tu email para restablecer la contraseña');
   }
 });
 
-// Verificar sesión activa al iniciar
+// Verificar sesión activa al iniciar — usa el flag para no duplicar
 async function verificarSesionInicial(){
+  if(_cargandoPerfil || userSession) return;
   const { data:{ session } } = await db.auth.getSession();
-  if(session) await cargarPerfilUsuario(session.user);
+  if(session && !userSession){
+    _cargandoPerfil = true;
+    await cargarPerfilUsuario(session.user);
+    _cargandoPerfil = false;
+  }
 }
 
 async function cargarPerfilUsuario(user){
@@ -3516,10 +3526,38 @@ function filtrarC(q){
 // ════════════════════════════════════════
 // NUEVA PUBLICACIÓN
 // ════════════════════════════════════════
+function mostrarModalMembresia(accion){
+  const tipo = userSession?.tipo === 'vendedor' ? 'vendedor' : 'comprador';
+  const precio = tipo === 'vendedor' ? '$10.000/mes' : '$5.000/mes';
+  const existing = document.getElementById('modal-membresia-bloqueo');
+  if(existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'modal-membresia-bloqueo';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(10,22,40,.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:20px;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+      <div style="font-size:48px;margin-bottom:1rem">🔒</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--azul);margin-bottom:.5rem">MEMBRESÍA REQUERIDA</div>
+      <div style="font-size:14px;color:var(--texto-suave);line-height:1.6;margin-bottom:1.5rem">
+        Para <strong>${accion}</strong> necesitás una membresía activa.<br>
+        Plan ${tipo}: <strong style="color:var(--naranja)">${precio}</strong>
+      </div>
+      <button onclick="document.getElementById('modal-membresia-bloqueo').remove();abrirMercadoPago('${tipo}')"
+        style="width:100%;padding:14px;background:var(--naranja);color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:.75rem">
+        💳 Activar membresía ahora
+      </button>
+      <button onclick="document.getElementById('modal-membresia-bloqueo').remove()"
+        style="width:100%;padding:10px;background:transparent;color:var(--gris-mid);border:1px solid var(--crema);border-radius:10px;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer">
+        Cancelar
+      </button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
 function abrirNuevaPublicacion(){
   if(!userSession){ abrirAuth('registro'); return; }
   if(!userSession.membresia_activa){
-    requiereMembresia('publicar un vehículo');
+    mostrarModalMembresia('publicar un vehículo');
     return;
   }
   document.getElementById('mov-nueva-pub').classList.add('open');
@@ -3917,12 +3955,11 @@ async function suscribirWebPush(){
     // Guardar suscripción en Supabase
     if(userSession?.id){
       try {
-        await db.from('push_subscriptions').upsert({
-          user_id: userSession.id,
-          subscription: JSON.stringify(sub),
-          updated_at: new Date().toISOString()
-        });
-      } catch(_){}
+        await db.from('push_subscriptions').upsert(
+          { user_id: userSession.id, subscription: JSON.stringify(sub), updated_at: new Date().toISOString() },
+          { onConflict: 'user_id', ignoreDuplicates: false }
+        );
+      } catch(_){ /* push_subscriptions puede no estar habilitada */ }
     }
     console.log('Web Push suscripción activa');
   } catch(e){
