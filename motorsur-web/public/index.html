@@ -1301,7 +1301,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
           <button class="plan-btn ob" onclick="abrirMercadoPago('vendedor')">Activar plan vendedor</button>
         </div>
       </div>
-      <div class="comision-nota">Los vendedores abonan una comisión del <strong>1,5%</strong> sobre el precio final de venta de cada vehículo generado por la plataforma, según T&C cláusula 2.</div>
+      <div class="comision-nota">Los vendedores abonan una comisión del <strong>1%</strong> sobre el precio final de venta de cada vehículo generado por la plataforma, según T&C cláusula 2.</div>
     </div>
   </section>
 
@@ -1587,7 +1587,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
             <div class="fg"><label class="flabel">Precio final de venta ($)</label><input class="finput" type="number" value="14500000" id="precio-com" oninput="calcCom()"></div>
             <div style="background:var(--blanco);border-radius:10px;padding:14px;margin-bottom:1rem">
               <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px">
-                <span style="color:var(--texto-suave)">Comisión MotorSur (1,5%)</span>
+                <span style="color:var(--texto-suave)">Comisión MotorSur (1%)</span>
                 <span style="font-weight:800;color:var(--naranja)" id="com-calc">$217.500</span>
               </div>
               <div style="font-size:11px;color:var(--gris-mid)">Se abona por MercadoPago o transferencia bancaria</div>
@@ -1866,7 +1866,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
               <div class="mbar"><div class="mbar-fill" style="width:55%;background:var(--azul-mid)"></div></div>
               <div style="font-size:12px;color:var(--texto-suave);margin:8px 0 4px;display:flex;justify-content:space-between"><span>Membresías compradores (16 × $5.000)</span><span style="font-weight:600">$80.000</span></div>
               <div class="mbar"><div class="mbar-fill" style="width:18%;background:var(--naranja)"></div></div>
-              <div style="font-size:12px;color:var(--texto-suave);margin:8px 0 4px;display:flex;justify-content:space-between"><span>Comisiones 1,5%</span><span style="font-weight:600">$487.500</span></div>
+              <div style="font-size:12px;color:var(--texto-suave);margin:8px 0 4px;display:flex;justify-content:space-between"><span>Comisiones 1%</span><span style="font-weight:600">$487.500</span></div>
               <div class="mbar"><div class="mbar-fill" style="width:100%;background:var(--verde)"></div></div>
             </div>
           </div>
@@ -2502,7 +2502,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;font-weight:400;letter-spacing:2px;color:var(--azul)">¡Gracias por confirmarlo!</div>
     </div>
     <div style="background:var(--verde-light);border-radius:10px;padding:1rem;font-size:13px;color:#175C36;margin-bottom:1.25rem;line-height:1.6">
-      Registramos tu compra. El vendedor recibirá una notificación para que declare la venta y abone la comisión del <strong>1,5%</strong> correspondiente.
+      Registramos tu compra. El vendedor recibirá una notificación para que declare la venta y abone la comisión del <strong>1%</strong> correspondiente.
     </div>
     <div class="fg">
       <label class="flabel">¿Cómo calificarías al vendedor?</label>
@@ -2660,7 +2660,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       <input class="finput" type="number" id="dv-precio" placeholder="14500000" oninput="calcDV()">
     </div>
     <div style="background:var(--blanco);border-radius:10px;padding:12px 14px;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--crema)">
-      <span style="font-size:13px;color:var(--texto-suave)">Comisión MotorSur (1,5%)</span>
+      <span style="font-size:13px;color:var(--texto-suave)">Comisión MotorSur (1%)</span>
       <span style="font-size:18px;font-weight:800;color:var(--naranja)" id="dv-comision">$217.500</span>
     </div>
     <div style="border:1.5px solid var(--crema);border-radius:10px;padding:1.25rem;margin-bottom:1rem">
@@ -2946,9 +2946,9 @@ async function hacerLogin(){
 
   setAuthLoading('btn-login', true, 'Ingresando...');
   const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
-  setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
 
   if(error){
+    setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
     const msgs = {
       'Invalid login credentials': 'Email o contraseña incorrectos',
       'Email not confirmed': 'Confirmá tu email antes de ingresar. Revisá tu bandeja.',
@@ -2957,7 +2957,19 @@ async function hacerLogin(){
     showAuthError('auth-error', msgs[error.message] || 'Error al ingresar. Intentá de nuevo.');
     return;
   }
-  // onAuthStateChange se encarga del resto
+
+  // Login exitoso — cargar perfil directamente, no esperar onAuthStateChange
+  if(data?.user){
+    _cargandoPerfil = true;
+    try {
+      await cargarPerfilUsuario(data.user);
+    } catch(e){
+      mostrarToast('⚠ Error al cargar el perfil. Intentá de nuevo.');
+    } finally {
+      _cargandoPerfil = false;
+    }
+  }
+  setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
 }
 
 // ── REGISTRO REAL ──
@@ -3217,7 +3229,7 @@ function showPlanInfo(val){
   const b = document.getElementById('pib');
   if(!b) return;
   if(val==='comprador'){ b.style.display='block'; b.textContent='Acceso completo al catálogo y chat protegido con vendedores verificados. Protección de operación 90 días.'; }
-  else if(val==='vendedor'){ b.style.display='block'; b.textContent='Publicaciones ilimitadas con fotos. Al registrarte aceptás la comisión del 1,5% sobre el precio final de cada venta generada por la plataforma.'; }
+  else if(val==='vendedor'){ b.style.display='block'; b.textContent='Publicaciones ilimitadas con fotos. Al registrarte aceptás la comisión del 1% sobre el precio final de cada venta generada por la plataforma.'; }
   else { b.style.display='none'; }
 }
 
@@ -3739,7 +3751,7 @@ async function analizarConvIA(lado){
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:1000,
-        system:`Sos el sistema anti-evasión de MotorSur, plataforma de compraventa de autos de San Rafael, Mendoza. Analizá la conversación y detectá si hay intento de evadir la comisión del 1.5% cerrando el trato fuera de la plataforma. Buscá señales como: compartir teléfono/WhatsApp/email directo, "te llamo por afuera", "hablemos por otro lado", precios "en negro", acuerdos sin pasar por la plataforma. Respondé SOLO en JSON válido sin markdown: {"riesgo":"ALTO|MEDIO|BAJO","color":"rojo|amarillo|verde","titulo":"Título corto","descripcion":"2 oraciones máximo","recomendacion":"Acción para el admin"}`,
+        system:`Sos el sistema anti-evasión de MotorSur, plataforma de compraventa de autos de San Rafael, Mendoza. Analizá la conversación y detectá si hay intento de evadir la comisión del 1% cerrando el trato fuera de la plataforma. Buscá señales como: compartir teléfono/WhatsApp/email directo, "te llamo por afuera", "hablemos por otro lado", precios "en negro", acuerdos sin pasar por la plataforma. Respondé SOLO en JSON válido sin markdown: {"riesgo":"ALTO|MEDIO|BAJO","color":"rojo|amarillo|verde","titulo":"Título corto","descripcion":"2 oraciones máximo","recomendacion":"Acción para el admin"}`,
         messages:[{role:'user',content:'Conversación:\n'+textos}]
       })
     });
@@ -4478,7 +4490,7 @@ function abrirPagoComision(){
   const val = parseFloat(document.getElementById('precio-com')?.value||0);
   const comision = Math.round(val * 0.015);
   mpPlanActual = 'comision';
-  document.getElementById('mp-plan-nombre').textContent = 'Comisión MotorSur (1,5%)';
+  document.getElementById('mp-plan-nombre').textContent = 'Comisión MotorSur (1%)';
   document.getElementById('mp-plan-precio').textContent = '$' + comision.toLocaleString('es-AR');
   document.getElementById('tr-monto').textContent = '$' + comision.toLocaleString('es-AR');
   selMetodoPago('mp');
@@ -4532,6 +4544,19 @@ async function redirigirMercadoPago(){
     cerrarMov('mercadopago');
     mostrarToast('✓ Redirigiendo a MercadoPago...');
 
+    // Guardar estado de sesión antes de salir para restaurarla al volver
+    if(userSession){
+      sessionStorage.setItem('ms_session_backup', JSON.stringify({
+        id: userSession.id,
+        nombre: userSession.nombre,
+        nombreCompleto: userSession.nombreCompleto,
+        email: userSession.email,
+        tipo: userSession.tipo,
+        initials: userSession.initials,
+        page: userSession.page
+      }));
+    }
+
     // Redirigir a MercadoPago
     setTimeout(() => { window.location.href = data.init_point; }, 600);
 
@@ -4542,20 +4567,34 @@ async function redirigirMercadoPago(){
 }
 
 // Verificar si el usuario volvió de MercadoPago con pago exitoso
-function verificarRetornoPago(){
+async function verificarRetornoPago(){
   const params = new URLSearchParams(window.location.search);
   const pago = params.get('pago');
-  const tipo = params.get('tipo');
-  const uid = params.get('uid');
-
   if(!pago) return;
 
-  // Limpiar URL
+  // Limpiar URL inmediatamente
   window.history.replaceState({}, '', window.location.pathname);
+
+  // Restaurar sesión desde backup si Supabase todavía no la tiene
+  if(!userSession){
+    const backup = sessionStorage.getItem('ms_session_backup');
+    if(backup){
+      try {
+        const s = JSON.parse(backup);
+        // Esperar a que Supabase restaure la sesión
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Si sigue sin sesión, cargarla desde Supabase
+        if(!userSession){
+          const { data:{ session } } = await db.auth.getSession();
+          if(session) await cargarPerfilUsuario(session.user);
+        }
+      } catch(e){}
+    }
+  }
+  sessionStorage.removeItem('ms_session_backup');
 
   if(pago === 'exitoso'){
     mostrarToast('✅ ¡Pago aprobado! Tu membresía se está activando...');
-    // Recargar perfil para obtener membresía actualizada
     setTimeout(async () => {
       if(userSession?.id){
         const { data } = await db.from('perfiles')
@@ -4564,12 +4603,11 @@ function verificarRetornoPago(){
           .single();
         if(data?.membresia_activa){
           userSession.membresia_activa = true;
+          actualizarSidebarUsuario();
           mostrarToast('✅ ¡Membresía activa! Ya podés usar todas las funciones.');
-          // Actualizar sidebar
-          activarSesion();
         }
       }
-    }, 2000);
+    }, 2500);
   } else if(pago === 'fallido'){
     mostrarToast('⚠ El pago no se procesó. Podés intentarlo de nuevo.');
   } else if(pago === 'pendiente'){
@@ -4940,7 +4978,7 @@ const LEGAL = {
     <strong style="color:var(--azul);display:block;margin:.75rem 0 .25rem">El VENDEDOR se compromete a:</strong>
     <ul style="margin-left:1rem;display:flex;flex-direction:column;gap:6px;margin-top:.5rem">
       <li>Declarar precios reales bajo carácter de declaración jurada</li>
-      <li>Abonar la comisión del 1,5% sobre el precio final de venta cuando el comprador fue contactado por MotorSur</li>
+      <li>Abonar la comisión del 1% sobre el precio final de venta cuando el comprador fue contactado por MotorSur</li>
       <li>Declarar la venta dentro de los 5 días hábiles de concretada</li>
       <li>No evadir la comisión contactando compradores por fuera de la plataforma</li>
       <li>Responder consultas de seguimiento dentro de las 48 horas</li>
