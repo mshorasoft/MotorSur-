@@ -1546,7 +1546,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
                 <div style="font-size:13px;font-weight:700" id="chat-nombre-v">Ana G.</div>
                 <div style="font-size:11px;color:var(--gris-mid)" id="chat-sub-v">Ford Ranger XL 2021 · Contacto registrado 06/04/2025 14:30</div>
               </div>
-              <button class="btn-action sm outline" style="margin-left:auto;white-space:nowrap" onclick="analizarConvIA('v')">🤖 Analizar IA</button>
+              <!-- Analizar IA: exclusivo panel admin -->
             </div>
             <div id="ia-analisis-v" style="display:none;padding:10px 1rem;border-bottom:1px solid var(--crema);font-size:12px"></div>
             <div class="chat-messages" id="msgs-v">
@@ -1785,7 +1785,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
                 <div style="font-size:13px;font-weight:700" id="chat-nombre-c">—</div>
                 <div style="font-size:11px;color:var(--gris-mid)" id="chat-sub-c">Seleccioná una conversación</div>
               </div>
-              <button class="btn-action sm outline" style="margin-left:auto;white-space:nowrap" onclick="analizarConvIA('c')">🤖 Analizar IA</button>
+              <!-- Analizar IA: exclusivo panel admin -->
             </div>
             <div id="ia-analisis-c" style="display:none;padding:10px 1rem;border-bottom:1px solid var(--crema);font-size:12px"></div>
             <div class="chat-messages" id="msgs-c">
@@ -2232,7 +2232,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
 <!-- ══════════════ BOTÓN FLOTANTE WHATSAPP ══════════════ -->
 <a href="https://wa.me/5492604655192?text=Hola%20MotorSur!%20Quiero%20consultar%20sobre%20un%20vehículo." target="_blank" rel="noopener"
    id="btn-wsp-flotante"
-   style="position:fixed;bottom:2rem;right:2rem;z-index:500;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.45);text-decoration:none;font-size:28px;transition:all .25s;animation:wsp-pulse 2.5s ease infinite"
+   style="position:fixed;bottom:5.5rem;right:2rem;z-index:500;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.45);text-decoration:none;font-size:28px;transition:all .25s;animation:wsp-pulse 2.5s ease infinite"
    title="Contactar por WhatsApp">
   💬
 </a>
@@ -3253,6 +3253,12 @@ document.querySelectorAll('.mov').forEach(m=>{
 // PANEL NAVIGATION
 // ════════════════════════════════════════
 function setPV(view,el){
+  // Bloquear secciones clave sin membresía
+  const bloqueadas = ['mensajes-v','comisiones-v','ventas-v'];
+  if(bloqueadas.includes(view) && !userSession?.membresia_activa){
+    mostrarModalMembresia('acceder a ' + view.replace('-v','').replace('mensajes','mensajes').replace('comisiones','comisiones').replace('ventas','historial de ventas'));
+    return;
+  }
   document.querySelectorAll('#page-panel-vendedor .pview').forEach(v=>v.classList.remove('active'));
   const target = document.getElementById('pv-'+view);
   if(target) target.classList.add('active');
@@ -3309,6 +3315,10 @@ function calcDV(){
 // DECLARAR VENTA
 // ════════════════════════════════════════
 function abrirDeclaracionVenta(auto, patente){
+  if(!userSession?.membresia_activa){
+    mostrarModalMembresia('declarar una venta');
+    return;
+  }
   document.getElementById('dv-auto').textContent = auto;
   document.getElementById('dv-patente').textContent = patente;
   document.getElementById('dv-precio').value='';
@@ -3351,6 +3361,11 @@ function confirmarDeclaracion(){
 // CHAT
 // ════════════════════════════════════════
 async function enviarMsg(lado){
+  if(!userSession){ abrirAuth('login'); return; }
+  if(!userSession.membresia_activa){
+    mostrarModalMembresia(lado === 'c' ? 'chatear con vendedores' : 'responder mensajes de compradores');
+    return;
+  }
   const inp = document.getElementById('cinput-'+lado);
   const msgs = document.getElementById('msgs-'+lado);
   const txt = inp.value.trim();
@@ -3413,6 +3428,10 @@ function generarConvId(lado){
 // CHAT VENDEDOR: seleccionar conversación
 // ════════════════════════════════════════
 function seleccionarConvV(el, nombre, iniciales, color, subtitulo, mensajes){
+  if(!userSession?.membresia_activa){
+    mostrarModalMembresia('ver mensajes de compradores');
+    return;
+  }
   document.querySelectorAll('#chat-list-v .chat-item').forEach(i=>i.classList.remove('active'));
   el.classList.add('active');
   const badge = el.querySelector('.chat-unread');
@@ -3454,6 +3473,11 @@ let interesVendedorNombre = '';
 let interesAutoNombre = '';
 
 function abrirInteres(card){
+  if(!userSession){ abrirAuth('registro'); return; }
+  if(!userSession.membresia_activa){
+    mostrarModalMembresia('contactar vendedores');
+    return;
+  }
   interesCard = card;
   const name = card.querySelector('.car-name')?.textContent || 'Vehículo';
   const price = card.querySelector('.car-price-overlay')?.textContent?.trim() || '';
@@ -3586,6 +3610,10 @@ function publicarVehiculo(){
 // EDITAR PUBLICACIÓN
 // ════════════════════════════════════════
 function abrirEditarPub(modelo,anio,precio,km,comb,tipo,estado){
+  if(!userSession?.membresia_activa){
+    mostrarModalMembresia('editar publicaciones');
+    return;
+  }
   document.getElementById('ep-modelo').value=modelo;
   document.getElementById('ep-anio').value=anio;
   document.getElementById('ep-precio').value=precio;
@@ -3709,6 +3737,11 @@ function renderizarListaChatsComprador(){
 }
 
 function seleccionarConvC(el,conv){
+  // Verificar membresía antes de mostrar el chat
+  if(!userSession?.membresia_activa){
+    mostrarModalMembresia('ver y enviar mensajes');
+    return;
+  }
   document.querySelectorAll('#chat-list-c .chat-item').forEach(i=>i.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('chat-av-c').textContent=conv.iniciales;
@@ -4410,6 +4443,10 @@ function accionDesdeDetalle(){
   cerrarMov('detalle');
   if(!userSession){
     abrirAuth('registro');
+    return;
+  }
+  if(!userSession.membresia_activa){
+    mostrarModalMembresia('contactar vendedores');
     return;
   }
   // Simular card para abrirInteres
