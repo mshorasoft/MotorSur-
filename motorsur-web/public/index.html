@@ -11,13 +11,31 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MotorSur">
-<link rel="manifest" id="pwa-manifest">
+<link rel="manifest" href="/manifest.json">
+
+<!-- Apple Touch Icons -->
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/icon-192.png">
+
+<!-- Apple Splash Screens -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-startup-image" href="/splash.png">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="shortcut icon" href="/favicon.ico">
 
 <!-- SEO / OG -->
 <meta name="description" content="Compraventa de vehículos en San Rafael, Mendoza. Vendedores verificados, contacto protegido 90 días, comisión transparente.">
 <meta property="og:title" content="MotorSur — Autos y camionetas en San Rafael">
 <meta property="og:description" content="La plataforma de compraventa de vehículos del sur mendocino.">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://motor-sur.vercel.app/icon-512.png">
+<meta property="og:url" content="https://motor-sur.vercel.app">
+<meta name="twitter:card" content="summary_large_image">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -26,27 +44,7 @@
   const { createClient } = supabase
   const db = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-  // Inject PWA manifest dynamically
-  const manifest = {
-    name: "MotorSur",
-    short_name: "MotorSur",
-    description: "Compraventa de vehículos · San Rafael, Mendoza",
-    start_url: "/",
-    display: "standalone",
-    background_color: "#0A1628",
-    theme_color: "#0A1628",
-    orientation: "portrait-primary",
-    icons: [
-      { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%230A1628'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle' fill='%23FF5C1A' font-family='sans-serif' font-weight='900'%3EM%3C/text%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml" },
-      { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230A1628'/%3E%3Ctext x='256' y='360' font-size='280' text-anchor='middle' fill='%23FF5C1A' font-family='sans-serif' font-weight='900'%3EM%3C/text%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml" }
-    ],
-    shortcuts: [
-      { name: "Ver autos", url: "/#autos", description: "Explorar vehículos disponibles" },
-      { name: "Publicar auto", url: "/#publicar", description: "Crear nueva publicación" }
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-  document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+  // Manifest servido como archivo estático /manifest.json
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -922,6 +920,9 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
     <a onclick="scrollTo2('planes')">Planes</a>
   </div>
   <div class="nav-right" id="nav-btns-public">
+    <button id="btn-instalar-nav" onclick="instalarPWA()" style="display:none;padding:7px 14px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;align-items:center;gap:6px">
+      📲 Instalar app
+    </button>
     <button class="btn-nav-out" onclick="abrirAuth('login')">Ingresar</button>
     <button class="btn-nav-pri" onclick="abrirAuth('registro')">Publicar auto</button>
   </div>
@@ -1320,6 +1321,70 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
     <div class="trust-it"><div class="trust-ico"><svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6" stroke="#fff" stroke-width="1.2"/><path d="M9 6v4l2.5 2.5" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg></div>Contacto protegido por 90 días</div>
     <div class="trust-it"><div class="trust-ico"><svg viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="11" rx="1.5" stroke="#fff" stroke-width="1.2"/><path d="M2 8h14" stroke="#fff" stroke-width="1.2"/></svg></div>Pago de membresía vía MercadoPago</div>
   </div>
+
+  <!-- INSTALAR APP -->
+  <section style="background:linear-gradient(135deg,#0A1628,#162847);padding:4rem 2.5rem;text-align:center">
+    <div style="max-width:560px;margin:0 auto">
+      <div style="font-size:52px;margin-bottom:1rem">📲</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:2px;color:#fff;margin-bottom:.75rem">
+        Instalá MotorSur<br><span style="color:var(--naranja)">en tu celular</span>
+      </div>
+      <p style="font-size:15px;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:2rem">
+        Accedé más rápido, recibí notificaciones cuando alguien<br>te escribe y usala como si fuera una app nativa.
+      </p>
+
+      <!-- Beneficios -->
+      <div style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:2.5rem">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.6)">
+          <span style="color:var(--naranja);font-size:18px">⚡</span> Abre al instante
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.6)">
+          <span style="color:var(--naranja);font-size:18px">🔔</span> Notificaciones en tiempo real
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.6)">
+          <span style="color:var(--naranja);font-size:18px">📴</span> Funciona sin internet
+        </div>
+      </div>
+
+      <!-- Botón Android (aparece si soporta instalación) -->
+      <div id="install-android-wrap" style="display:none;margin-bottom:1rem">
+        <button onclick="instalarPWA()" style="padding:16px 40px;background:var(--naranja);color:#fff;border:none;border-radius:12px;font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(255,92,26,.4);transition:all .25s;width:100%;max-width:320px">
+          📲 Instalar en Android
+        </button>
+        <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:.5rem">Chrome detectó que podés instalar esta app</div>
+      </div>
+
+      <!-- Instrucciones iOS -->
+      <div id="install-ios-wrap" style="display:none;margin-bottom:1rem">
+        <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.5rem;max-width:360px;margin:0 auto;text-align:left">
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:1rem;text-align:center">Instalá en iPhone en 2 pasos:</div>
+          <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:1rem">
+            <div style="width:28px;height:28px;background:var(--naranja);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">1</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5">Tocá el botón <strong style="color:#fff">Compartir</strong> <span style="font-size:16px">⬆️</span> en la barra de Safari</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <div style="width:28px;height:28px;background:var(--naranja);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">2</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5">Seleccioná <strong style="color:#fff">"Agregar a pantalla de inicio"</strong> <span style="font-size:16px">➕</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Si ya está instalada -->
+      <div id="install-done-wrap" style="display:none">
+        <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(26,122,69,.2);border:1px solid rgba(26,122,69,.4);border-radius:10px;padding:12px 24px">
+          <span style="font-size:20px">✅</span>
+          <span style="font-size:14px;color:rgba(255,255,255,.8)">¡MotorSur ya está instalada en tu dispositivo!</span>
+        </div>
+      </div>
+
+      <!-- Fallback genérico si ninguno aplica -->
+      <div id="install-generic-wrap" style="display:none">
+        <div style="font-size:13px;color:rgba(255,255,255,.4);line-height:1.7">
+          Para instalar: abrí este sitio en Chrome (Android) o Safari (iPhone)<br>y usá la opción "Agregar a pantalla de inicio".
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- FOOTER -->
   <footer>
@@ -3928,10 +3993,8 @@ self.addEventListener('notificationclick', e => {
 if('serviceWorker' in navigator){
   // En producción (Vercel) usa /sw.js directamente
   // En desarrollo local usa blob como fallback
-  const swUrl = location.hostname === 'localhost' || location.protocol === 'file:'
-    ? URL.createObjectURL(new Blob([SW_CODE], {type:'application/javascript'}))
-    : '/sw.js';
-
+  // Siempre usar /sw.js estático — más confiable y sin warnings
+  const swUrl = '/sw.js';
   navigator.serviceWorker.register(swUrl, {scope:'/'})
     .then(reg => {
       window._swReg = reg;
@@ -4089,68 +4152,112 @@ function actualizarBadgeChat(){
 // ════════════════════════════════════════
 let deferredInstallPrompt = null;
 
+// Detectar si ya está instalada
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isAndroid = /android/i.test(navigator.userAgent);
+
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  // Mostrar banner de instalación después de 3s
-  setTimeout(mostrarBannerInstalar, 3000);
+
+  // Mostrar botón en navbar
+  const btnNav = document.getElementById('btn-instalar-nav');
+  if(btnNav) btnNav.style.display = 'flex';
+
+  // Mostrar botón en sección instalación
+  const androidWrap = document.getElementById('install-android-wrap');
+  if(androidWrap) androidWrap.style.display = 'block';
+
+  // Mostrar banner flotante después de 8s (no invasivo)
+  setTimeout(mostrarBannerInstalar, 8000);
+});
+
+// Detectar y mostrar sección correcta al cargar
+window.addEventListener('load', () => {
+  const androidWrap = document.getElementById('install-android-wrap');
+  const iosWrap = document.getElementById('install-ios-wrap');
+  const doneWrap = document.getElementById('install-done-wrap');
+  const genericWrap = document.getElementById('install-generic-wrap');
+
+  if(isStandalone){
+    // Ya instalada
+    if(doneWrap) doneWrap.style.display = 'block';
+  } else if(isIos){
+    // iPhone/iPad — mostrar instrucciones manuales
+    if(iosWrap) iosWrap.style.display = 'block';
+    // Banner flotante en iOS si no lo vio antes
+    if(!sessionStorage.getItem('ms_ios_hint')){
+      sessionStorage.setItem('ms_ios_hint','1');
+      setTimeout(() => {
+        const tip = document.createElement('div');
+        tip.innerHTML = `
+          <div style="position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:1000;
+            background:var(--azul);color:#fff;border-radius:14px;padding:14px 20px;
+            display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.3);
+            max-width:380px;width:calc(100% - 3rem);animation:fadeUp .4s ease">
+            <div style="font-size:26px">📲</div>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:13px">Instalá MotorSur en iPhone</div>
+              <div style="font-size:12px;opacity:.65;margin-top:2px">Tocá <strong>Compartir ⬆️</strong> → <strong>Agregar a pantalla de inicio</strong></div>
+            </div>
+            <button onclick="this.closest('div').parentNode.remove()" style="background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:20px;padding:4px">×</button>
+          </div>`;
+        document.body.appendChild(tip);
+        setTimeout(() => tip.remove(), 12000);
+      }, 5000);
+    }
+  } else if(!deferredInstallPrompt){
+    // Desktop u otro — mostrar genérico
+    if(genericWrap) genericWrap.style.display = 'block';
+  }
 });
 
 function mostrarBannerInstalar(){
-  if(!deferredInstallPrompt) return;
+  if(!deferredInstallPrompt || isStandalone) return;
   if(document.getElementById('pwa-banner')) return;
   const banner = document.createElement('div');
   banner.id = 'pwa-banner';
   banner.innerHTML = `
-    <div style="position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:1000;
+    <div style="position:fixed;bottom:6rem;left:50%;transform:translateX(-50%);z-index:1000;
       background:var(--azul);color:#fff;border-radius:14px;padding:14px 20px;
       display:flex;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,.3);
       max-width:420px;width:calc(100% - 3rem);animation:fadeUp .4s ease">
-      <div style="width:40px;height:40px;border-radius:10px;background:var(--naranja);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px">M</div>
+      <img src="/icon-192.png" style="width:40px;height:40px;border-radius:10px;flex-shrink:0" onerror="this.style.display='none'">
       <div style="flex:1">
         <div style="font-weight:700;font-size:14px">Instalá MotorSur</div>
-        <div style="font-size:12px;opacity:.6;margin-top:2px">Accedé más rápido desde tu celular</div>
+        <div style="font-size:12px;opacity:.6;margin-top:2px">Accedé como app desde tu pantalla de inicio</div>
       </div>
       <button onclick="instalarPWA()" style="padding:8px 16px;background:var(--naranja);color:#fff;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">Instalar</button>
-      <button onclick="this.closest('#pwa-banner').remove()" style="background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:20px;padding:4px;line-height:1">×</button>
+      <button onclick="document.getElementById('pwa-banner').remove()" style="background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:20px;padding:4px;line-height:1">×</button>
     </div>`;
   document.body.appendChild(banner);
 }
 
 async function instalarPWA(){
-  if(!deferredInstallPrompt) return;
+  if(!deferredInstallPrompt){
+    // Si no hay prompt (iOS o ya instalada), mostrar instrucciones
+    if(isIos){
+      mostrarToast('En iPhone: tocá Compartir ⬆️ → Agregar a pantalla de inicio');
+    } else {
+      mostrarToast('Abrí este sitio en Chrome para instalarlo como app');
+    }
+    return;
+  }
   deferredInstallPrompt.prompt();
   const result = await deferredInstallPrompt.userChoice;
   deferredInstallPrompt = null;
   document.getElementById('pwa-banner')?.remove();
-  if(result.outcome === 'accepted') mostrarToast('✓ MotorSur instalada en tu dispositivo');
-}
-
-// iOS manual install hint
-window.addEventListener('load', ()=>{
-  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = window.navigator.standalone;
-  if(isIos && !isStandalone && !sessionStorage.getItem('ms_ios_hint')){
-    sessionStorage.setItem('ms_ios_hint','1');
-    setTimeout(()=>{
-      const tip = document.createElement('div');
-      tip.innerHTML = `
-        <div style="position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:1000;
-          background:var(--azul);color:#fff;border-radius:14px;padding:14px 20px;
-          display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.3);
-          max-width:380px;width:calc(100% - 3rem);animation:fadeUp .4s ease">
-          <div style="font-size:26px">📲</div>
-          <div style="flex:1">
-            <div style="font-weight:700;font-size:13px">Instalá MotorSur en iPhone</div>
-            <div style="font-size:12px;opacity:.65;margin-top:2px">Tocá <strong>Compartir</strong> → <strong>Agregar a inicio</strong></div>
-          </div>
-          <button onclick="this.closest('div').parentNode.remove()" style="background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:20px;padding:4px">×</button>
-        </div>`;
-      document.body.appendChild(tip);
-      setTimeout(()=>tip.remove(), 10000);
-    }, 4000);
+  const btnNav = document.getElementById('btn-instalar-nav');
+  if(btnNav) btnNav.style.display = 'none';
+  const androidWrap = document.getElementById('install-android-wrap');
+  if(androidWrap) androidWrap.style.display = 'none';
+  if(result.outcome === 'accepted'){
+    mostrarToast('✅ MotorSur instalada en tu dispositivo');
+    const doneWrap = document.getElementById('install-done-wrap');
+    if(doneWrap) doneWrap.style.display = 'block';
   }
-});
+}
 
 function scrollRecientes(dir){
   const cont = document.getElementById('scroll-recientes');
