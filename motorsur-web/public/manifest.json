@@ -1,0 +1,59 @@
+{
+  "name": "MotorSur — Compraventa de Vehículos",
+  "short_name": "MotorSur",
+  "description": "La plataforma de compraventa de vehículos del sur mendocino. San Rafael, Mendoza.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0A1628",
+  "theme_color": "#0A1628",
+  "lang": "es-AR",
+  "categories": ["automotive", "shopping"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ver vehículos",
+      "short_name": "Vehículos",
+      "description": "Explorar autos y camionetas disponibles",
+      "url": "/?shortcut=autos",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Publicar auto",
+      "short_name": "Publicar",
+      "description": "Publicar un vehículo en venta",
+      "url": "/?shortcut=publicar",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mi panel",
+      "short_name": "Mi panel",
+      "description": "Acceder a mi panel de usuario",
+      "url": "/?shortcut=panel",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "MotorSur — Pantalla principal"
+    }
+  ]
+}
