@@ -2795,10 +2795,21 @@ async function verificarSesionInicial(){
 }
 
 async function cargarPerfilUsuario(user){
-  // Buscar perfil en tabla perfiles
-  let { data: perfil } = await db.from('perfiles').select('*').eq('user_id', user.id).single();
+  let perfil = null;
 
-  // Si no tiene perfil, intentar crearlo
+  try {
+    // Timeout de 5 segundos para evitar que se cuelgue
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 5000)
+    );
+    const query = db.from('perfiles').select('*').eq('user_id', user.id).single();
+    const resultado = await Promise.race([query, timeout]);
+    perfil = resultado.data || null;
+  } catch(e) {
+    console.warn('Perfil no cargado:', e.message);
+  }
+
+  // Si no tiene perfil en BD, construirlo desde los metadatos de auth
   if(!perfil){
     perfil = {
       user_id: user.id,
@@ -2806,24 +2817,39 @@ async function cargarPerfilUsuario(user){
       email: user.email,
       tipo: user.user_metadata?.tipo || 'comprador',
       dni: user.user_metadata?.dni || '',
-      telefono: user.user_metadata?.telefono || ''
+      telefono: user.user_metadata?.telefono || '',
+      membresia_activa: false
     };
+    // Intentar crear el perfil en BD (sin bloquear)
+    db.from('perfiles').upsert({
+      user_id: user.id,
+      nombre: perfil.nombre,
+      email: perfil.email,
+      tipo: perfil.tipo,
+      dni: perfil.dni,
+      telefono: perfil.telefono,
+      membresia_activa: false,
+      created_at: new Date().toISOString()
+    }).then(() => {}).catch(() => {});
   }
 
   // Iniciales
-  const partes = perfil.nombre.split(' ');
+  const partes = (perfil.nombre || 'U').split(' ');
   const initials = partes.length >= 2
     ? partes[0][0].toUpperCase() + partes[1][0].toUpperCase()
-    : perfil.nombre.substring(0,2).toUpperCase();
+    : (perfil.nombre || 'US').substring(0,2).toUpperCase();
 
   userSession = {
     id: user.id,
-    nombre: abreviarNombre(perfil.nombre),
-    nombreCompleto: perfil.nombre,
+    nombre: abreviarNombre(perfil.nombre || user.email),
+    nombreCompleto: perfil.nombre || user.email,
     email: user.email,
-    tipo: perfil.tipo,
+    tipo: perfil.tipo || 'comprador',
+    membresia_activa: perfil.membresia_activa === true,
     initials,
-    page: perfil.tipo === 'vendedor' ? 'panel-vendedor' : perfil.tipo === 'admin' ? 'panel-admin' : 'panel-comprador'
+    page: perfil.tipo === 'vendedor' ? 'panel-vendedor'
+        : perfil.tipo === 'admin' ? 'panel-admin'
+        : 'panel-comprador'
   };
 
   cerrarMov('auth');
@@ -3023,18 +3049,39 @@ async function hacerLogin(){
     return;
   }
 
-  // Login exitoso — cargar perfil directamente, no esperar onAuthStateChange
+  // Login exitoso — cargar perfil con timeout de seguridad
   if(data?.user){
     _cargandoPerfil = true;
     try {
-      await cargarPerfilUsuario(data.user);
+      await Promise.race([
+        cargarPerfilUsuario(data.user),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
+      ]);
     } catch(e){
-      mostrarToast('⚠ Error al cargar el perfil. Intentá de nuevo.');
+      console.warn('Login timeout:', e.message);
+      // Si hay timeout intentar igualmente mostrar algo al usuario
+      if(!userSession && data.user){
+        const email = data.user.email || '';
+        const nombre = data.user.user_metadata?.nombre || email.split('@')[0];
+        const tipo = data.user.user_metadata?.tipo || 'comprador';
+        const initials = nombre.substring(0,2).toUpperCase();
+        userSession = { id: data.user.id, nombre, nombreCompleto: nombre, email, tipo, initials,
+          membresia_activa: false,
+          page: tipo === 'vendedor' ? 'panel-vendedor' : tipo === 'admin' ? 'panel-admin' : 'panel-comprador'
+        };
+        cerrarMov('auth');
+        activarSesion();
+        mostrarToast('⚠ Perfil cargado parcialmente. Recargá si hay problemas.');
+      } else {
+        mostrarToast('⚠ Tardó demasiado. Intentá de nuevo.');
+      }
     } finally {
       _cargandoPerfil = false;
+      setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
     }
+  } else {
+    setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
   }
-  setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
 }
 
 // ── REGISTRO REAL ──
@@ -3273,6 +3320,12 @@ async function cerrarSesion(){
 // ── DEMO RÁPIDO (mantener para desarrollo) ──
 function simLogin(){ simLoginComo('vendedor'); }
 
+function checkDemoAccess(email){
+  const adminEmails = ['horaciobasly@gmail.com','admin@motorsur.com.ar'];
+  const show = adminEmails.some(e => email.toLowerCase().includes(e.split('@')[0]));
+  const el = document.getElementById('demo-acceso-rapido');
+  if(el) el.style.display = show ? 'block' : 'none';
+}
 function simLoginComo(tipo){
   const datos = {
     vendedor:{id:'uid-v-001',nombre:'Carlos M.',nombreCompleto:'Carlos Méndez',initials:'CM',tipo:'vendedor',page:'panel-vendedor'},
