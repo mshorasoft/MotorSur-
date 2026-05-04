@@ -897,20 +897,133 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
+/* ══════════════════════════════════════
+   RESPONSIVE — TABLET (900px)
+══════════════════════════════════════ */
 @media(max-width:900px){
   .metrics{grid-template-columns:repeat(2,1fr)}
   .panel{flex-direction:column}
-  .sidebar{width:100%;height:auto;position:relative;top:0;flex-direction:row;overflow-x:auto;padding:.5rem;padding-left:max(.5rem, env(safe-area-inset-left, .5rem));padding-right:max(.5rem, env(safe-area-inset-right, .5rem))}
+  .sidebar{
+    width:100%;height:auto;position:relative;top:0;
+    flex-direction:row;overflow-x:auto;padding:.5rem;
+    padding-left:max(.5rem, env(safe-area-inset-left, .5rem));
+    padding-right:max(.5rem, env(safe-area-inset-right, .5rem));
+  }
   .g2,.g3{grid-template-columns:1fr}
   .chat-wrap{grid-template-columns:1fr}
 }
+
+/* ══════════════════════════════════════
+   RESPONSIVE — MÓVIL (640px)
+══════════════════════════════════════ */
 @media(max-width:640px){
+  /* NAV */
+  nav{padding:0 1rem;padding-top:env(safe-area-inset-top,0px)}
   nav .nav-links{display:none}
-  .hero-h1{font-size:68px;letter-spacing:2px}
+  .nav-logo{font-size:20px}
+
+  /* HERO */
+  .hero-body{padding:2rem 1rem 1.5rem}
+  .hero-h1{font-size:52px;letter-spacing:1px;line-height:.92}
+  .hero-p{font-size:15px}
+  .hero-btns{flex-direction:column;gap:10px}
+  .btn-hero-pri,.btn-hero-sec{width:100%;text-align:center;padding:14px}
+  .hero-stats{gap:1.5rem;flex-wrap:wrap}
+  .hstat-n{font-size:32px}
+
+  /* SEARCH */
+  .search-wrap{padding:0 1rem 2rem}
   .sbar{flex-direction:column;border-radius:12px}
-  .sfield{border-right:none;border-bottom:1px solid rgba(255,255,255,.08);width:100%}
-  .sbtn{width:100%;justify-content:center;height:52px}
-  .metrics{grid-template-columns:1fr 1fr}
+  .sfield{border-right:none;border-bottom:1px solid rgba(255,255,255,.08);width:100%;height:50px}
+  .sbtn{width:100%;justify-content:center;height:50px}
+
+  /* SECTIONS */
+  .sec{padding:3rem 1rem}
+  .sec-title{font-size:36px}
+  .sec-head{flex-direction:column;align-items:flex-start;gap:1rem}
+
+  /* CARS GRID */
+  .cars-grid{grid-template-columns:1fr;gap:1rem}
+
+  /* METRICS */
+  .metrics{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+  .mc{padding:1rem}
+  .mc-val{font-size:28px}
+
+  /* PANEL */
+  .panel-main{padding:1rem}
+  .panel-header{flex-direction:column;align-items:flex-start;gap:.75rem;margin-bottom:1rem}
+  .panel-title{font-size:24px}
+
+  /* SIDEBAR MÓVIL — horizontal scroll compacto */
+  .sidebar{padding:.25rem .5rem}
+  .sb-item{padding:8px 12px;font-size:12px;border-left:none;border-bottom:2px solid transparent}
+  .sb-item.active{border-left:none;border-bottom-color:var(--naranja);background:transparent}
+  .sb-section{display:none}
+  .sb-foot{display:none} /* Ocultar pie de sidebar en móvil */
+
+  /* CHAT */
+  .chat-wrap{height:420px}
+  .chat-messages{padding:.75rem}
+  .chat-input{padding:.75rem}
+  .msg{max-width:85%}
+
+  /* TABLA PANEL */
+  .prow{font-size:12px;padding:10px 1rem}
+  .ptable-header{padding:.75rem 1rem}
+
+  /* MODALES */
+  .mbox{padding:1.5rem 1.25rem;border-radius:16px}
+  .m-title{font-size:26px}
+
+  /* PLANES */
+  .planes{grid-template-columns:1fr}
+
+  /* PASOS */
+  .steps{grid-template-columns:1fr}
+
+  /* FOOTER */
+  footer{padding:2.5rem 1rem 1.5rem}
+  .foot-in{flex-direction:column;gap:1.5rem}
+
+  /* TABLA PUBLICACIONES — scroll horizontal */
+  .ptable{overflow-x:auto}
+  .prow[style*="grid-template-columns:1fr 120px"]{
+    grid-template-columns:1fr 90px 80px 60px 70px;
+    font-size:11px;
+  }
+
+  /* USUARIO MENU */
+  #user-menu{right:.75rem;min-width:170px}
+
+  /* HERO STATS */
+  .hero-stats{padding-top:1.5rem}
+
+  /* G2 G3 */
+  .g2,.g3{grid-template-columns:1fr;gap:1rem}
+
+  /* BTN INSTALAR NAV — ocultar en móvil (está en la sección) */
+  #btn-instalar-nav{display:none!important}
+
+  /* WHATSAPP — más chico en móvil */
+  #btn-wsp-flotante{width:48px;height:48px;font-size:22px}
+
+  /* DETALLE VEHÍCULO */
+  #detalle-box>div[style*="grid-template-columns:1fr 1fr"]{
+    grid-template-columns:1fr!important;
+  }
+
+  /* ADMIN GRID */
+  .g3{grid-template-columns:1fr}
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — MÓVIL PEQUEÑO (390px)
+══════════════════════════════════════ */
+@media(max-width:390px){
+  .hero-h1{font-size:44px}
+  .metrics{grid-template-columns:1fr}
+  .nav-username{display:none}
 }
 </style>
 </head>
@@ -4328,6 +4441,51 @@ function scrollRecientes(dir){
 }
 
 // ════════════════════════════════════════
+// NAVBAR INFERIOR MÓVIL
+// ════════════════════════════════════════
+function setNavBottomActive(id){
+  document.querySelectorAll('.nav-bottom-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById(id);
+  if(btn) btn.classList.add('active');
+}
+
+function ocultarNavBottom(){
+  setNavBottomActive('nbb-inicio');
+}
+
+function irAVehiculos(){
+  setNavBottomActive('nbb-autos');
+  if(userSession){
+    // Si está logueado ir al panel comprador sección explorar
+    if(userSession.tipo === 'comprador'){ goTo('panel-comprador'); setPC('explorar',null); }
+    else if(userSession.tipo === 'vendedor'){ goTo('panel-vendedor'); setPV('publicaciones',null); }
+    else goTo('landing');
+  } else {
+    goTo('landing');
+    setTimeout(()=>{ const el=document.getElementById('autos'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 100);
+  }
+}
+
+function irAPublicar(){
+  setNavBottomActive('nbb-publicar');
+  abrirNuevaPublicacion();
+}
+
+function irAMiPanel(){
+  setNavBottomActive('nbb-panel');
+  if(!userSession){ abrirAuth('login'); return; }
+  if(userSession.tipo === 'vendedor') goTo('panel-vendedor');
+  else if(userSession.tipo === 'comprador') goTo('panel-comprador');
+  else if(userSession.tipo === 'admin') goTo('panel-admin');
+}
+
+function irAPerfil(){
+  setNavBottomActive('nbb-perfil');
+  if(!userSession){ abrirAuth('login'); return; }
+  toggleUserMenu();
+}
+
+// ════════════════════════════════════════
 // FOTO UPLOAD
 // ════════════════════════════════════════
 let fotosPublicacion = [];
@@ -5223,6 +5381,60 @@ function abrirModalLegal(tipo){
   document.getElementById('mov-legal').classList.add('open');
 }
 </script>
+
+<!-- NAVBAR INFERIOR MÓVIL -->
+<nav id="nav-bottom-mobile" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:490;
+  background:rgba(10,22,40,.97);backdrop-filter:blur(12px);
+  border-top:1px solid rgba(255,255,255,.08);
+  padding:.5rem 0;padding-bottom:max(.5rem,env(safe-area-inset-bottom,.5rem));
+  flex-direction:row;justify-content:space-around;align-items:center;">
+  <button onclick="goTo('landing');ocultarNavBottom()" 
+    class="nav-bottom-btn active" id="nbb-inicio"
+    style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 12px;color:rgba(255,255,255,.5);font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;transition:color .2s;min-width:60px">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 4l9 8v9a1 1 0 01-1 1H15v-5h-6v5H4a1 1 0 01-1-1v-9z" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
+    Inicio
+  </button>
+  <button onclick="irAVehiculos()" 
+    class="nav-bottom-btn" id="nbb-autos"
+    style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 12px;color:rgba(255,255,255,.5);font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;transition:color .2s;min-width:60px">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M19 17H5a2 2 0 01-2-2V9l2-4h14l2 4v6a2 2 0 01-2 2z" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="7.5" cy="17" r="1.5" fill="currentColor"/><circle cx="16.5" cy="17" r="1.5" fill="currentColor"/></svg>
+    Autos
+  </button>
+  <button onclick="irAPublicar()" 
+    class="nav-bottom-btn" id="nbb-publicar"
+    style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 4px;color:rgba(255,255,255,.5);font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;transition:color .2s;min-width:60px">
+    <div style="width:42px;height:42px;background:var(--naranja);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:-2px;box-shadow:0 4px 14px rgba(255,92,26,.4)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </div>
+    Publicar
+  </button>
+  <button onclick="irAMiPanel()" 
+    class="nav-bottom-btn" id="nbb-panel"
+    style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 12px;color:rgba(255,255,255,.5);font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;transition:color .2s;min-width:60px">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
+    Mi panel
+  </button>
+  <button onclick="irAPerfil()" 
+    class="nav-bottom-btn" id="nbb-perfil"
+    style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 12px;color:rgba(255,255,255,.5);font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;transition:color .2s;min-width:60px">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+    Perfil
+  </button>
+</nav>
+
+<style>
+/* Mostrar navbar inferior solo en móvil */
+@media(max-width:640px){
+  #nav-bottom-mobile{ display:flex!important }
+  /* Dar espacio al contenido para que no quede tapado por el nav inferior */
+  .page.active{ padding-bottom:calc(70px + env(safe-area-inset-bottom,0px)) }
+  /* Botón WhatsApp sube para no tapar el nav */
+  #btn-wsp-flotante{ bottom:calc(5rem + env(safe-area-inset-bottom,0px))!important }
+  /* Crédito también sube */
+}
+.nav-bottom-btn.active{ color:#fff!important }
+.nav-bottom-btn.active svg{ stroke:var(--naranja) }
+</style>
 
 <!-- Crédito HB Productos Digitales -->
 <div style="
