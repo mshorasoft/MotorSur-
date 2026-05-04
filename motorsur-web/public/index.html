@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>MotorSur — Compraventa de vehículos · San Rafael, Mendoza</title>
 
 <!-- PWA -->
@@ -75,6 +75,10 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Outfit',sans-serif;background:var(--blanco);color:var(--texto);overflow-x:hidden}
+/* Safe area support para PWA en iOS/Android */
+@supports(padding: env(safe-area-inset-top)){
+  body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+}
 .page{display:none;min-height:100vh}
 .page.active{display:block}
 
@@ -84,7 +88,9 @@ body{font-family:'Outfit',sans-serif;background:var(--blanco);color:var(--texto)
 nav{
   position:fixed;top:0;left:0;right:0;z-index:200;
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 2.5rem;height:64px;
+  padding:0 2.5rem;
+  padding-top:env(safe-area-inset-top, 0px);
+  height:calc(64px + env(safe-area-inset-top, 0px));
   background:rgba(10,22,40,.96);
   backdrop-filter:blur(12px);
   border-bottom:1px solid rgba(255,255,255,.07);
@@ -128,7 +134,8 @@ nav{
 ═══════════════════════════════════════════ */
 .hero{
   min-height:100vh;background:var(--azul);
-  display:flex;flex-direction:column;padding-top:64px;
+  display:flex;flex-direction:column;
+  padding-top:calc(64px + env(safe-area-inset-top, 0px));
   position:relative;overflow:hidden;
 }
 .hero-bg-lines{
@@ -591,11 +598,14 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
 /* ═══════════════════════════════════════════
    PANEL LAYOUT
 ═══════════════════════════════════════════ */
-.panel{display:flex;min-height:100vh;padding-top:64px}
+.panel{display:flex;min-height:100vh;padding-top:calc(64px + env(safe-area-inset-top, 0px))}
 .sidebar{
   width:220px;border-right:1px solid var(--crema);padding:1.5rem 0;
   flex-shrink:0;display:flex;flex-direction:column;background:#fff;
-  position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;
+  position:sticky;
+  top:calc(64px + env(safe-area-inset-top, 0px));
+  height:calc(100vh - 64px - env(safe-area-inset-top, 0px));
+  overflow-y:auto;
 }
 .sb-section{
   padding:0 1.25rem .5rem;font-size:9px;font-weight:700;
@@ -866,7 +876,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
    TOAST
 ═══════════════════════════════════════════ */
 #toast-ms{
-  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  position:fixed;bottom:calc(2rem + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);
   background:var(--azul);color:#fff;padding:13px 26px;
   border-radius:10px;font-size:14px;font-weight:600;z-index:9999;
   box-shadow:0 8px 30px rgba(0,0,0,.25);transition:opacity .3s;opacity:0;
@@ -890,7 +900,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
 @media(max-width:900px){
   .metrics{grid-template-columns:repeat(2,1fr)}
   .panel{flex-direction:column}
-  .sidebar{width:100%;height:auto;position:relative;top:0;flex-direction:row;overflow-x:auto;padding:.5rem}
+  .sidebar{width:100%;height:auto;position:relative;top:0;flex-direction:row;overflow-x:auto;padding:.5rem;padding-left:max(.5rem, env(safe-area-inset-left, .5rem));padding-right:max(.5rem, env(safe-area-inset-right, .5rem))}
   .g2,.g3{grid-template-columns:1fr}
   .chat-wrap{grid-template-columns:1fr}
 }
@@ -2297,7 +2307,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
 <!-- ══════════════ BOTÓN FLOTANTE WHATSAPP ══════════════ -->
 <a href="https://wa.me/5492604655192?text=Hola%20MotorSur!%20Quiero%20consultar%20sobre%20un%20vehículo." target="_blank" rel="noopener"
    id="btn-wsp-flotante"
-   style="position:fixed;bottom:5.5rem;right:2rem;z-index:500;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.45);text-decoration:none;font-size:28px;transition:all .25s;animation:wsp-pulse 2.5s ease infinite"
+   style="position:fixed;bottom:calc(5.5rem + env(safe-area-inset-bottom, 0px));right:max(2rem, env(safe-area-inset-right, 2rem));z-index:500;width:56px;height:56px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.45);text-decoration:none;font-size:28px;transition:all .25s;animation:wsp-pulse 2.5s ease infinite"
    title="Contactar por WhatsApp">
   💬
 </a>
