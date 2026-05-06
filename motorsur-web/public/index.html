@@ -4746,7 +4746,7 @@ function abrirDetalleVehiculo(v){
     ? (v.verificado
         ? '<span class="car-seller-badge">✓ Vendedor verificado</span>'
         : '<span style="font-size:11px;color:var(--gris-mid)">Vendedor particular</span>')
-    : '<span style="font-size:11px;color:var(--naranja);cursor:pointer" onclick="abrirMercadoPago('comprador')">Activar membresía para ver →</span>';
+    : '<span style="font-size:11px;color:var(--naranja);cursor:pointer" onclick="abrirMercadoPago(\'comprador\')">Activar membres\u00EDa para ver \u2192</span>';
 
   // Descripción
   document.getElementById('det-desc').textContent = v.desc || 'Sin descripción adicional.';
