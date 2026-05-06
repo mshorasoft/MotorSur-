@@ -4337,15 +4337,21 @@ window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
 
-  // Mostrar botón en navbar
+  // Mostrar botón en navbar desktop
   const btnNav = document.getElementById('btn-instalar-nav');
   if(btnNav) btnNav.style.display = 'flex';
+
+  // Mostrar botón instalar en navbar inferior móvil
+  const nbbInstalar = document.getElementById('nbb-instalar');
+  const nbbPerfil = document.getElementById('nbb-perfil');
+  if(nbbInstalar) nbbInstalar.style.display = 'flex';
+  if(nbbPerfil) nbbPerfil.style.display = 'none';
 
   // Mostrar botón en sección instalación
   const androidWrap = document.getElementById('install-android-wrap');
   if(androidWrap) androidWrap.style.display = 'block';
 
-  // Mostrar banner flotante después de 8s (no invasivo)
+  // Mostrar banner flotante después de 8s
   setTimeout(mostrarBannerInstalar, 8000);
 });
 
@@ -4360,8 +4366,11 @@ window.addEventListener('load', () => {
     // Ya instalada
     if(doneWrap) doneWrap.style.display = 'block';
   } else if(isIos){
-    // iPhone/iPad — mostrar instrucciones manuales
     if(iosWrap) iosWrap.style.display = 'block';
+    const nbbInstalar = document.getElementById('nbb-instalar');
+    const nbbPerfil = document.getElementById('nbb-perfil');
+    if(nbbInstalar) nbbInstalar.style.display = 'flex';
+    if(nbbPerfil) nbbPerfil.style.display = 'none';
     // Banner flotante en iOS si no lo vio antes
     if(!sessionStorage.getItem('ms_ios_hint')){
       sessionStorage.setItem('ms_ios_hint','1');
@@ -4432,6 +4441,10 @@ async function instalarPWA(){
     mostrarToast('✅ MotorSur instalada en tu dispositivo');
     const doneWrap = document.getElementById('install-done-wrap');
     if(doneWrap) doneWrap.style.display = 'block';
+    const nbbInstalar = document.getElementById('nbb-instalar');
+    const nbbPerfil = document.getElementById('nbb-perfil');
+    if(nbbInstalar) nbbInstalar.style.display = 'none';
+    if(nbbPerfil) nbbPerfil.style.display = 'flex';
   }
 }
 
@@ -5419,6 +5432,12 @@ function abrirModalLegal(tipo){
     style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 12px;color:rgba(255,255,255,.5);font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;transition:color .2s;min-width:60px">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
     Perfil
+  </button>
+  <button onclick="instalarPWA()" 
+    id="nbb-instalar"
+    style="display:none;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 12px;color:var(--naranja);font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;letter-spacing:.5px;min-width:60px">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3v13M7 12l5 5 5-5" stroke="var(--naranja)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20h14" stroke="var(--naranja)" stroke-width="2" stroke-linecap="round"/></svg>
+    Instalar
   </button>
 </nav>
 
