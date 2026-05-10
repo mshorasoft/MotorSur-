@@ -4978,19 +4978,33 @@ async function verificarRetornoPago(){
 
   if(pago === 'exitoso'){
     mostrarToast('✅ ¡Pago aprobado! Tu membresía se está activando...');
-    setTimeout(async () => {
-      if(userSession?.id){
+    // Reintentar hasta 10 veces cada 3 segundos (30 segundos en total)
+    let intentos = 0;
+    const verificarMembresia = async () => {
+      intentos++;
+      if(!userSession?.id) return;
+      try {
         const { data } = await db.from('perfiles')
           .select('membresia_activa,membresia_vence,membresia_tipo')
           .eq('user_id', userSession.id)
           .single();
         if(data?.membresia_activa){
           userSession.membresia_activa = true;
+          userSession.membresia_tipo = data.membresia_tipo;
+          userSession.membresia_vence = data.membresia_vence;
           actualizarSidebarUsuario();
           mostrarToast('✅ ¡Membresía activa! Ya podés usar todas las funciones.');
+          return; // Salir — ya está activa
         }
+      } catch(e){}
+      // Si no está activa todavía y quedan intentos, volver a intentar
+      if(intentos < 10){
+        setTimeout(verificarMembresia, 3000);
+      } else {
+        mostrarToast('⚠ Si pagaste, tu membresía se activará en minutos. Recargá la página.');
       }
-    }, 2500);
+    };
+    setTimeout(verificarMembresia, 3000);
   } else if(pago === 'fallido'){
     mostrarToast('⚠ El pago no se procesó. Podés intentarlo de nuevo.');
   } else if(pago === 'pendiente'){
