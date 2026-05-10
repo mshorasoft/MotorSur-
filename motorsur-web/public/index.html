@@ -2920,16 +2920,24 @@ async function verificarSesionInicial(){
 async function cargarPerfilUsuario(user){
   let perfil = null;
 
-  try {
-    const { data, error } = await db.from('perfiles').select('*').eq('user_id', user.id).single();
-    if(!error && data) perfil = data;
-  } catch(e) {
-    console.warn('Perfil no cargado:', e.message);
+  // Reintentar hasta 3 veces si falla o tarda mucho
+  for(let intento = 0; intento < 3; intento++){
+    try {
+      const { data, error } = await db.from('perfiles').select('*').eq('user_id', user.id).single();
+      if(!error && data){
+        perfil = data;
+        break;
+      }
+      if(error) console.warn('Error cargando perfil (intento ' + (intento+1) + '):', error.message);
+    } catch(e) {
+      console.warn('Excepcion cargando perfil (intento ' + (intento+1) + '):', e.message);
+    }
+    if(intento < 2) await new Promise(r => setTimeout(r, 1500));
   }
 
-  // Si no tiene perfil en BD, construirlo desde los metadatos de auth
-  // IMPORTANTE: solo insertar si realmente no existe — nunca pisar membresia_activa
+  // Solo si realmente no existe el perfil en BD, crear uno temporal
   if(!perfil){
+    console.warn('No se pudo cargar perfil desde BD — usando metadatos de auth');
     perfil = {
       user_id: user.id,
       nombre: user.user_metadata?.nombre || user.email.split('@')[0],
@@ -3178,19 +3186,34 @@ async function hacerLogin(){
       ]);
     } catch(e){
       console.warn('Login timeout:', e.message);
-      // Si hay timeout intentar igualmente mostrar algo al usuario
+      // Si hay timeout, intentar cargar el perfil directamente desde Supabase
       if(!userSession && data.user){
-        const email = data.user.email || '';
-        const nombre = data.user.user_metadata?.nombre || email.split('@')[0];
-        const tipo = data.user.user_metadata?.tipo || 'comprador';
-        const initials = nombre.substring(0,2).toUpperCase();
-        userSession = { id: data.user.id, nombre, nombreCompleto: nombre, email, tipo, initials,
-          membresia_activa: false,
-          page: tipo === 'vendedor' ? 'panel-vendedor' : tipo === 'admin' ? 'panel-admin' : 'panel-comprador'
-        };
-        cerrarMov('auth');
-        activarSesion();
-        mostrarToast('⚠ Perfil cargado parcialmente. Recargá si hay problemas.');
+        try {
+          const { data: perfilData } = await db.from('perfiles').select('*').eq('user_id', data.user.id).single();
+          if(perfilData){
+            const partes = (perfilData.nombre || 'U').split(' ');
+            const initials = partes.length >= 2
+              ? partes[0][0].toUpperCase() + partes[1][0].toUpperCase()
+              : (perfilData.nombre || 'US').substring(0,2).toUpperCase();
+            userSession = {
+              id: data.user.id,
+              nombre: abreviarNombre(perfilData.nombre || data.user.email),
+              nombreCompleto: perfilData.nombre || data.user.email,
+              email: data.user.email,
+              tipo: perfilData.tipo || 'comprador',
+              membresia_activa: perfilData.membresia_activa === true,
+              initials,
+              page: perfilData.tipo === 'vendedor' ? 'panel-vendedor' : perfilData.tipo === 'admin' ? 'panel-admin' : 'panel-comprador'
+            };
+            cerrarMov('auth');
+            activarSesion();
+            mostrarToast('⚠ Conexión lenta. Si hay problemas, recargá la página.');
+          } else {
+            mostrarToast('⚠ No se pudo cargar tu perfil. Intentá de nuevo.');
+          }
+        } catch(e2){
+          mostrarToast('⚠ Error de conexión. Intentá de nuevo.');
+        }
       } else {
         mostrarToast('⚠ Tardó demasiado. Intentá de nuevo.');
       }
