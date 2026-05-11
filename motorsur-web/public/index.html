@@ -904,10 +904,12 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
   .metrics{grid-template-columns:repeat(2,1fr)}
   .panel{flex-direction:column}
   .sidebar{
-    width:100%;height:auto;position:relative;top:0;
+    width:100%;height:auto;position:sticky;
+    top:calc(64px + env(safe-area-inset-top, 0px));
     flex-direction:row;overflow-x:auto;padding:.5rem;
     padding-left:max(.5rem, env(safe-area-inset-left, .5rem));
     padding-right:max(.5rem, env(safe-area-inset-right, .5rem));
+    z-index:100;
   }
   .g2,.g3{grid-template-columns:1fr}
   .chat-wrap{grid-template-columns:1fr}
@@ -951,7 +953,7 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
   .mc-val{font-size:28px}
 
   /* PANEL */
-  .panel-main{padding:1rem}
+  .panel-main{padding:1rem;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
   .panel-header{flex-direction:column;align-items:flex-start;gap:.75rem;margin-bottom:1rem}
   .panel-title{font-size:24px}
 
@@ -2335,10 +2337,10 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
       <div style="background:var(--blanco);border-radius:10px;padding:1rem;border:1px solid var(--crema);margin-bottom:1rem;font-size:13px">
         <div style="font-weight:700;color:var(--azul);margin-bottom:.75rem">Datos para transferencia</div>
         <div style="display:flex;flex-direction:column;gap:6px;color:var(--texto-suave)">
-          <div>CBU: <strong style="color:var(--texto);font-family:monospace">0720318420000011234567</strong></div>
-          <div>Alias: <strong style="color:var(--texto)">MOTORSUR.SANRAFAEL</strong></div>
-          <div>Titular: <strong style="color:var(--texto)">MotorSur S.A.S.</strong></div>
-          <div>CUIT: <strong style="color:var(--texto)">30-71234567-8</strong></div>
+          <div>CBU: <strong style="color:var(--texto);font-family:monospace">0170279040000031184942</strong></div>
+          <div>Alias: <strong style="color:var(--texto)">HoracioBasly03</strong></div>
+          <div>Titular: <strong style="color:var(--texto)">Horacio Basly</strong></div>
+          <div>Tipo: <strong style="color:var(--texto)">Caja de Ahorro en $</strong></div>
           <div>Monto: <strong style="color:var(--naranja)" id="tr-monto">$10.000</strong></div>
         </div>
       </div>
@@ -2445,8 +2447,8 @@ footer{background:var(--azul);color:rgba(255,255,255,.4);padding:4rem 2.5rem 2re
 </div>
 
 <!-- ══════════════ MODAL AUTH ══════════════ -->
-<div class="mov" id="mov-auth">
-  <div class="mbox" style="max-width:420px">
+<div class="mov" id="mov-auth" style="align-items:flex-start;padding-top:env(safe-area-inset-top,0px);overflow-y:auto">
+  <div class="mbox" style="max-width:420px;margin:auto;margin-top:1rem;margin-bottom:calc(80px + env(safe-area-inset-bottom,0px))">
     <button class="mclose" onclick="cerrarMov('auth')">×</button>
 
     <!-- LOGO -->
@@ -2920,24 +2922,20 @@ async function verificarSesionInicial(){
 async function cargarPerfilUsuario(user){
   let perfil = null;
 
-  // Reintentar hasta 3 veces si falla o tarda mucho
-  for(let intento = 0; intento < 3; intento++){
-    try {
-      const { data, error } = await db.from('perfiles').select('*').eq('user_id', user.id).single();
-      if(!error && data){
-        perfil = data;
-        break;
-      }
-      if(error) console.warn('Error cargando perfil (intento ' + (intento+1) + '):', error.message);
-    } catch(e) {
-      console.warn('Excepcion cargando perfil (intento ' + (intento+1) + '):', e.message);
-    }
-    if(intento < 2) await new Promise(r => setTimeout(r, 1500));
+  try {
+    // Timeout de 5 segundos para evitar que se cuelgue
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), 5000)
+    );
+    const query = db.from('perfiles').select('*').eq('user_id', user.id).single();
+    const resultado = await Promise.race([query, timeout]);
+    perfil = resultado.data || null;
+  } catch(e) {
+    console.warn('Perfil no cargado:', e.message);
   }
 
-  // Solo si realmente no existe el perfil en BD, crear uno temporal
+  // Si no tiene perfil en BD, construirlo desde los metadatos de auth
   if(!perfil){
-    console.warn('No se pudo cargar perfil desde BD — usando metadatos de auth');
     perfil = {
       user_id: user.id,
       nombre: user.user_metadata?.nombre || user.email.split('@')[0],
@@ -2947,8 +2945,8 @@ async function cargarPerfilUsuario(user){
       telefono: user.user_metadata?.telefono || '',
       membresia_activa: false
     };
-    // Solo insertar si no existe — nunca upsert para no pisar datos reales
-    db.from('perfiles').insert({
+    // Intentar crear el perfil en BD (sin bloquear)
+    db.from('perfiles').upsert({
       user_id: user.id,
       nombre: perfil.nombre,
       email: perfil.email,
@@ -3020,6 +3018,12 @@ function activarSesion(){
 
   // Mostrar nombre real inmediatamente (membresía se actualiza desde Supabase)
   actualizarSidebarUsuario();
+
+  // Ocultar botón Publicar en nav inferior si es comprador
+  const btnPublicar = document.getElementById('nbb-publicar');
+  if(btnPublicar){
+    btnPublicar.style.display = userSession.tipo === 'comprador' ? 'none' : 'flex';
+  }
 
   if(userSession.tipo === 'comprador') renderizarListaChatsComprador();
   if(userSession.tipo === 'admin') suscribirAlertasRealtime();
@@ -3176,55 +3180,21 @@ async function hacerLogin(){
     return;
   }
 
-  // Login exitoso — cargar perfil con timeout de seguridad
+  // Login exitoso — cargar perfil sin bloquear la UI
   if(data?.user){
     _cargandoPerfil = true;
-    try {
-      await Promise.race([
-        cargarPerfilUsuario(data.user),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
-      ]);
-    } catch(e){
-      console.warn('Login timeout:', e.message);
-      // Si hay timeout, intentar cargar el perfil directamente desde Supabase
-      if(!userSession && data.user){
-        try {
-          const { data: perfilData } = await db.from('perfiles').select('*').eq('user_id', data.user.id).single();
-          if(perfilData){
-            const partes = (perfilData.nombre || 'U').split(' ');
-            const initials = partes.length >= 2
-              ? partes[0][0].toUpperCase() + partes[1][0].toUpperCase()
-              : (perfilData.nombre || 'US').substring(0,2).toUpperCase();
-            userSession = {
-              id: data.user.id,
-              nombre: abreviarNombre(perfilData.nombre || data.user.email),
-              nombreCompleto: perfilData.nombre || data.user.email,
-              email: data.user.email,
-              tipo: perfilData.tipo || 'comprador',
-              membresia_activa: perfilData.membresia_activa === true,
-              initials,
-              page: perfilData.tipo === 'vendedor' ? 'panel-vendedor' : perfilData.tipo === 'admin' ? 'panel-admin' : 'panel-comprador'
-            };
-            cerrarMov('auth');
-            activarSesion();
-            mostrarToast('⚠ Conexión lenta. Si hay problemas, recargá la página.');
-          } else {
-            mostrarToast('⚠ No se pudo cargar tu perfil. Intentá de nuevo.');
-          }
-        } catch(e2){
-          mostrarToast('⚠ Error de conexión. Intentá de nuevo.');
-        }
-      } else {
-        mostrarToast('⚠ Tardó demasiado. Intentá de nuevo.');
-      }
-    } finally {
+    setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
+    cerrarMov('auth');
+    mostrarToast('✓ Ingresando...');
+    // Cargar perfil en background sin bloquear
+    cargarPerfilUsuario(data.user).catch(e => {
+      console.warn('Error cargando perfil:', e.message);
+    }).finally(() => {
       _cargandoPerfil = false;
-      setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
-    }
+    });
   } else {
     setAuthLoading('btn-login', false, 'Ingresar a mi cuenta');
   }
-}
 
 // ── REGISTRO REAL ──
 // Datos temporales durante el flujo de registro
@@ -4499,6 +4469,11 @@ function irAVehiculos(){
 }
 
 function irAPublicar(){
+  if(!userSession){ abrirAuth('registro'); return; }
+  if(userSession.tipo === 'comprador'){
+    mostrarToast('⚠ Solo los vendedores pueden publicar autos');
+    return;
+  }
   setNavBottomActive('nbb-publicar');
   abrirNuevaPublicacion();
 }
@@ -4997,33 +4972,19 @@ async function verificarRetornoPago(){
 
   if(pago === 'exitoso'){
     mostrarToast('✅ ¡Pago aprobado! Tu membresía se está activando...');
-    // Reintentar hasta 10 veces cada 3 segundos (30 segundos en total)
-    let intentos = 0;
-    const verificarMembresia = async () => {
-      intentos++;
-      if(!userSession?.id) return;
-      try {
+    setTimeout(async () => {
+      if(userSession?.id){
         const { data } = await db.from('perfiles')
           .select('membresia_activa,membresia_vence,membresia_tipo')
           .eq('user_id', userSession.id)
           .single();
         if(data?.membresia_activa){
           userSession.membresia_activa = true;
-          userSession.membresia_tipo = data.membresia_tipo;
-          userSession.membresia_vence = data.membresia_vence;
           actualizarSidebarUsuario();
           mostrarToast('✅ ¡Membresía activa! Ya podés usar todas las funciones.');
-          return; // Salir — ya está activa
         }
-      } catch(e){}
-      // Si no está activa todavía y quedan intentos, volver a intentar
-      if(intentos < 10){
-        setTimeout(verificarMembresia, 3000);
-      } else {
-        mostrarToast('⚠ Si pagaste, tu membresía se activará en minutos. Recargá la página.');
       }
-    };
-    setTimeout(verificarMembresia, 3000);
+    }, 2500);
   } else if(pago === 'fallido'){
     mostrarToast('⚠ El pago no se procesó. Podés intentarlo de nuevo.');
   } else if(pago === 'pendiente'){
@@ -5437,8 +5398,9 @@ function abrirModalLegal(tipo){
 <nav id="nav-bottom-mobile" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:490;
   background:rgba(10,22,40,.97);backdrop-filter:blur(12px);
   border-top:1px solid rgba(255,255,255,.08);
-  padding:.5rem 0;padding-bottom:max(.5rem,env(safe-area-inset-bottom,.5rem));
-  flex-direction:row;justify-content:space-around;align-items:center;">
+  padding:.5rem 0;padding-bottom:max(.5rem,env(safe-area-inset-bottom,0px));
+  flex-direction:row;justify-content:space-around;align-items:center;
+  transform:translateZ(0);-webkit-transform:translateZ(0);">
   <button onclick="goTo('landing');ocultarNavBottom()" 
     class="nav-bottom-btn active" id="nbb-inicio"
     style="display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 12px;color:rgba(255,255,255,.5);font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;transition:color .2s;min-width:60px">
