@@ -2920,19 +2920,20 @@ async function verificarSesionInicial(){
 async function cargarPerfilUsuario(user){
   let perfil = null;
 
-  try {
-    // Timeout de 5 segundos para evitar que se cuelgue
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('timeout')), 5000)
-    );
-    const query = db.from('perfiles').select('*').eq('user_id', user.id).single();
-    const resultado = await Promise.race([query, timeout]);
-    perfil = resultado.data || null;
-  } catch(e) {
-    console.warn('Perfil no cargado:', e.message);
+  // Reintentar hasta 4 veces con 2 segundos entre intentos
+  for(let i = 0; i < 4; i++){
+    try {
+      const { data, error } = await db.from('perfiles').select('*').eq('user_id', user.id).single();
+      if(!error && data){ perfil = data; break; }
+      if(error && error.code !== 'PGRST116') console.warn('Error perfil intento', i+1, error.message);
+    } catch(e){
+      console.warn('Excepción perfil intento', i+1, e.message);
+    }
+    if(i < 3) await new Promise(r => setTimeout(r, 2000));
   }
 
-  // Si no tiene perfil en BD, construirlo desde los metadatos de auth
+  // Solo crear perfil si realmente no existe (error PGRST116 = not found)
+  // NUNCA hacer upsert — eso pisaría membresia_activa con false
   if(!perfil){
     perfil = {
       user_id: user.id,
@@ -2943,8 +2944,8 @@ async function cargarPerfilUsuario(user){
       telefono: user.user_metadata?.telefono || '',
       membresia_activa: false
     };
-    // Intentar crear el perfil en BD (sin bloquear)
-    db.from('perfiles').upsert({
+    // INSERT solo si no existe — nunca UPDATE ni upsert
+    db.from('perfiles').insert({
       user_id: user.id,
       nombre: perfil.nombre,
       email: perfil.email,
@@ -3396,15 +3397,16 @@ async function ejecutarRegistro({ nombre, email, pass, tipo, dni, telefono }){
     return;
   }
 
-  // Guardar perfil + aceptación contrato en Supabase
+  // Guardar perfil en Supabase — solo INSERT, nunca upsert para no pisar membresía
   if(data.user){
-    await db.from('perfiles').upsert({
+    await db.from('perfiles').insert({
       user_id: data.user.id,
       nombre, email, tipo, dni, telefono,
+      membresia_activa: false,
       contrato_aceptado: tipo === 'vendedor',
       contrato_fecha: tipo === 'vendedor' ? new Date().toISOString() : null,
       created_at: new Date().toISOString()
-    });
+    }).then(() => {}).catch(() => {});
   }
 
   // Si confirmación desactivada → mostrar pantalla verify
